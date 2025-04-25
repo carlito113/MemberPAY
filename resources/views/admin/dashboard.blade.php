@@ -8,18 +8,117 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{asset('css/admin.css') }}">
+  
 </head>
 <body>
+    @include('admin.navadmin')
 
-    <div class="container mt-5">
-        <h1>Welcome to the Admin Dashboard</h1>
-        <h2>Organization: <b style="color: royalblue">{{ $organization }}</b></h2>
-        <p>Here, you can manage your organization and members.</p>
-        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-            @csrf
-            <button type="submit" class="btn btn-warning">Logout</button>
-        </form>
+    <div class="d-flex">
+
+        <div class="main-content flex-grow-1 p-4">   
+            <div class="main-container">
+                <h1 class="fw-bold text-warning mb-4">{{ $organization }} ORGANIZATION</h2>
+                <div class="line"></div>
+                <br>
+            </div>       
+           
+                <div class="row">
+                
+                    <div class="col mb-3">
+                    <div class="card h-100 d-flex flex-column">
+                            <div class="card-body d-flex flex-column justify-content-end">
+                                <h1 class="text text-white">100</h1>
+                                <h6 class="card-text text-white p-2 mt-auto">Total Members</h3>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col mb-3">
+                        <div class="card h-100 d-flex flex-column">
+                            <div class="card-body d-flex flex-column justify-content-end">
+                                <h1 class="text text-white">100</h1>
+                                <h6 class="card-text text-white p-2 mt-auto">Total Paid</h3> 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col mb-3">
+                        <div class="card h-100 d-flex flex-column">
+                            <div class="card-body d-flex flex-column justify-content-end">
+                                <h1 class="text text-white">100</h1>
+                                <h6 class="card-text text-white p-2 mt-auto">Total Unpaid</h3>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    <div class="card">
+        <h4 class="card-title p-2 mb-3">Recent Payment Transaction</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Student ID</th>
+                        <th scope="col">First Name</th>
+                        <th scope="col">Last Name</th>
+                        <th scope="col">Section</th>
+                    </tr>
+                </thead>
+                @php
+                    // Example data - replace this with your actual payment transactions
+                    $students = [
+                        ['student_id' => '2024001', 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'section' => 'BSIT 1A'],
+                        ['student_id' => '2024002', 'first_name' => 'Maria', 'last_name' => 'Santos', 'section' => 'BSIT 1B'],
+                        ['student_id' => '2024003', 'first_name' => 'Pedro', 'last_name' => 'Penduko', 'section' => 'BSCS 2A'],
+                        ['student_id' => '2024004', 'first_name' => 'Ana', 'last_name' => 'Reyes', 'section' => 'BSIS 3A'],
+                    ];
+                @endphp
+                <tbody>
+                    @foreach ($students as $student)
+                        <tr>
+                            <td>{{ $student['student_id'] }}</td>
+                            <td>{{ $student['first_name'] }}</td>
+                            <td>{{ $student['last_name'] }}</td>
+                            <td>{{ $student['section'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
     </div>
 
+
+        </div>
+
+    </div>
+    
 </body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.querySelector('.toggle-btn');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+
+        // 1. Restore sidebar state from localStorage
+        const isSidebarOpen = localStorage.getItem('sidebarOpen') === 'true';
+        if (isSidebarOpen) {
+            sidebar.classList.add('open');
+            if (mainContent) mainContent.classList.add('shifted');
+        }
+
+        // 2. Toggle sidebar and update localStorage
+        toggleBtn.addEventListener('click', function () {
+            sidebar.classList.toggle('open');
+            if (mainContent) mainContent.classList.toggle('shifted');
+
+            // Save the state
+            localStorage.setItem('sidebarOpen', sidebar.classList.contains('open'));
+        });
+    });
+</script>
+
 </html>

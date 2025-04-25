@@ -44,6 +44,10 @@ return [
             'driver' => 'session',
             'provider' => 'admins', // You will add this provider below
         ],
+        'student' => [
+            'driver' => 'session',
+            'provider' => 'students',
+        ],
     ],
 
     /*
@@ -71,6 +75,10 @@ return [
         'admins' => [ // Adding the provider for admins
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class, // Ensure you have an Admin model
+        ],
+        'students' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Student::class,
         ],
 
         // 'users' => [

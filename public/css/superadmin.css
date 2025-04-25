@@ -10,11 +10,10 @@ html, body {
 }
 
 .card-custom {
-    background-color: #002855;
+    background-color: #052044;
     border-radius: 1rem;
     color: white;
-    padding: 1.5rem;
-    
+    padding: 1.5rem; 
     max-width: 100%;
     margin: 0 auto;
 }
@@ -23,20 +22,58 @@ html, body {
     color: #ffc107;
 }
 
+
 .main-content {
     margin-left: 100px;
     transition: margin-left 0.3s ease;
+    position: relative;
 }
 
 .main-content.shifted {
     margin-left: 250px;
 }
 
+
+.line{
+    position: absolute; /* Position it independently */
+    top: 20; /* Adjust as needed to place it correctly */
+    width: 96%; /* Adjust for the default sidebar width */
+    height: 4px;
+    background-color: rgb(22, 5, 83);
+    border-radius: 1px;
+    transition: all 0.3s ease; /* Smooth transition when sidebar moves */
+}
+
+
 .line-separator {
-    position: absolute;
-   
+    position: absolute; 
     width: 4px;
     height: 110px;
     background-color: white;
     border-radius: 1px;
+}
+
+
+.dots{
+    color: #fff;
+
+
+}
+.dots:hover{
+    color: #ffd000;
+    cursor: pointer;
+
+}
+
+.corner-icon {
+    margin: auto;
+    font-size: 1.2rem; /* Make the icon larger */
+    color: #0f0668; /* Match the color with the theme */
+    cursor: pointer; /* Add a pointer cursor for interactivity */
+   
+}
+
+.corner-icon:hover {
+    transition: color 0.3s ease; /* Smooth transition for color change */
+    color: #ff9800; /* Change color on hover */
 }

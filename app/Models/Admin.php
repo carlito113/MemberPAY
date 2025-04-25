@@ -14,7 +14,7 @@ class Admin extends Authenticatable // Extend the Authenticatable class
         'username', // admin's username, can be same as organization name
         'password', // admin's password (hashed)
         // admin's plain password (for internal use)
-        'name', // admin's organization
+        'name', // treasurer's name
         'role', // admin's role (e.g., 'admin', 'superadmin')
         'plain_password',
     ];
@@ -38,5 +38,10 @@ class Admin extends Authenticatable // Extend the Authenticatable class
     }
 
     // You can also add other required methods if needed.
+    public function semesters()
+    {
+        return $this->hasMany(Semester::class);
+    }
+
 }
 

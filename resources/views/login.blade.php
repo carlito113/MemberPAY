@@ -15,6 +15,11 @@
     <body>
         <div class="parent d-flex flex-column">
             <div [innerHtml]="target" class="m-0"></div>
+            @if(session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+            @endif
             <div class="container">
                 <div class="form-box login">
                     @if(session('error'))
@@ -22,6 +27,7 @@
                             {{ session('error') }}
                         </div>
                     @endif
+
                     <form action="{{ route('login.submit') }}" method="POST">
                         @csrf
                         <h1>Login</h1>
@@ -80,6 +86,14 @@
                 this.classList.toggle('bx-show');
                 this.classList.toggle('bx-hide');
             });
+        </script>
+        <script>
+            setTimeout(() => {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    new bootstrap.Alert(alert).close();
+                });
+            }, 5000); // Close after 5 seconds
         </script>
     </body>
 </html>

@@ -11,6 +11,13 @@ RUN apt-get update && apt-get install -y \
 # Enable apache mod_rewrite (required for Laravel)
 RUN a2enmod rewrite
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libzip-dev \
+    && docker-php-ext-install zip
+
 # Set the working directory
 WORKDIR /var/www/html
 

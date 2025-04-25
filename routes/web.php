@@ -2,45 +2,59 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SemesterController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentAuthController;
 use Illuminate\Support\Facades\Route;
 
-// (// Landing page route (login page)
-//     Route::get('/', function () {
-//         return view('login');
-//     })->name('home');  // Added a name for easy redirection to home
 
-//     // Show login form
-//     Route::get('/logining', [AuthController::class, 'showLoginForm'])->name('login.form');  // Renamed
-
-//     // Handle login submission
-//     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-
-//     // Handle logout
-//     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-//     // Authenticated routes (for both admin and superadmin dashboards)
-//     Route::middleware('auth')->group(function () {
-//         Route::get('admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-//     });
-//     // Route::get('superadmin/dashboard', [AdminController::class, 'superAdminDashboard'])->name('superadmin.dashboard');
-// )
-// Login + Logout Routes
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Group routes that require admin authentication
 Route::middleware(['auth:admin'])->group(function () {
-    // Admin Dashboard
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+   // Admin Dashboard
+   Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+   Route::get('/admin/addpayment', [AdminController::class, 'showAddPaymentForm'])->name('admin.showaddpayment');
+   Route::get('/admin/members', [AdminController::class, 'showMembers'])->name('admin.members');
+
+   
     // Super Admin Dashboard
     Route::get('/superadmin/dashboard', [AdminController::class, 'superAdminDashboard'])->name('superadmin.dashboard');
     // User Management for Super Admin
     Route::get('/superadmin/usermanagement', [AdminController::class, 'userManagementSuperAdmin'])->name('usermanagement.dashboard');
-    // Update Admin
-    Route::patch('/admins/{id}', [AdminController::class, 'update'])->name('admins.update');
+
+    Route::get('/admin/payment', [AdminController::class, 'adminPayment'])->name('admin.addpayment');
+
+    Route::post('/admin/addpayment', [AdminController::class, 'semStore'])->name('addpayment.semStore');
+
+    Route::get('/admin/semesterrecord', [AdminController::class, 'semesterRecord'])->name('admin.semesterrecord');
+    
+
+    Route::get('/admin/set-semester/{id}', [AdminController::class, 'setSemester'])->name('admin.setSemester');
+    
 
 
+     // Route::get('/student/dashboard', [StudentAuthController::class, 'dashboard'])->name('student.dashboard');
+     Route::post('/students/store', [StudentController::class, 'store'])->name('admin.students.store');
+     Route::patch('/students/{student}/update', [StudentController::class, 'update'])->name('admin.students.update');
+     Route::patch('/students/{student}/transfer', [StudentController::class, 'transfer'])->name('admin.students.transfer');
+
+
+     Route::post('/admin/toggle-payment-status', [AdminController::class, 'togglePaymentStatus'])->name('admin.togglePaymentStatus');
+
+     Route::post('/admin/update-payment-status', [AdminController::class, 'updatePaymentStatus'])->name('admin.updatePaymentStatus');
+
+     Route::get('/admin/payment-history', [AdminController::class, 'paymentHistory'])->name('admin.paymenthistory');
+
+     Route::get('/admin/payment-history-list', [AdminController::class, 'paymentHistoryList'])->name('admin.paymenthistorylist');
+    
+
+});
+
+Route::middleware(['auth:student'])->group(function () {
+    Route::get('/student/dashboard', [StudentAuthController::class, 'dashboard'])->name('student.dashboard');
 });
 
 // Route::middleware('auth:admin')->group(function () {

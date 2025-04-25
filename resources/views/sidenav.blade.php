@@ -16,9 +16,6 @@
             <a class="nav-link d-flex align-items-center" href="{{ route('usermanagement.dashboard') }}">
                 <i class="bi bi-people-fill me-2"></i> <span>User Management</span>
             </a>
-            <a class="nav-link d-flex align-items-center" >
-                <i class="bi bi-people-fill me-2"></i> <span>User Management</span>
-            </a>
         </li>
         <li class="nav-item">
             {{-- <a href="{{ route('logout') }}" class="nav-link d-flex align-items-center">

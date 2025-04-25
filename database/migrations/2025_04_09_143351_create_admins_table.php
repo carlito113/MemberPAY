@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('username')->unique(); // Will be used as the username
             $table->string('password')->unique(); // Will be used as the password
-            $table->string('name'); // Will be displayed as "Treasurer"
+            $table->string('plain_password'); // ➡️ Add this line
             $table->enum('role', ['super_admin', 'admin']); // Role can either be 'super_admin' or 'admin'
+            $table->string('name'); // Will be displayed as "Treasurer"
             $table->timestamps();
         });
     }

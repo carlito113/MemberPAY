@@ -1,0 +1,57 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Poppins';
+
+    
+}
+
+html, body {
+    height: 100%;
+}
+
+
+
+.main-content {
+    margin-left: 100px;
+    transition: margin-left 0.3s ease;
+    position: relative;
+}
+
+.main-content.shifted {
+    margin-left: 250px;
+}
+
+.line{
+    position: absolute; /* Position it independently */
+    top: 20; /* Adjust as needed to place it correctly */
+    width: 96%; /* Adjust for the default sidebar width */
+    height: 4px;
+    background-color: rgb(22, 5, 83);
+    border-radius: 1px;
+    transition: all 0.3s ease; /* Smooth transition when sidebar moves */
+}
+
+
+.card{
+    box-shadow: rgba(24, 23, 23, 0.16) 0px 3px 6px, rgba(20, 20, 20, 0.23) 0px 3px 6px;
+}
+
+
+.card-body{
+    height: 8rem;
+}
+
+
+.col:nth-child(1) .card {
+    background-color: #34c039; /* example style for the first card */
+}
+  
+.col:nth-child(2) .card {
+    background-color: #2437ca; /* second card */
+  }
+  
+.col:nth-child(3) .card {
+    background-color: #d32626; /* third card */
+}
+
+

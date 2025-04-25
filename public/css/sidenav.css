@@ -15,7 +15,7 @@ body {
     top: 0;
     left: 0;
     height: 100vh;
-    width: 100px;
+    width: 80px;
     background-color: #002855;
     transition: width 0.3s ease;
     overflow: hidden;
@@ -24,6 +24,17 @@ body {
     border-bottom-right-radius: 10px;
 }
 
+.sidebar img {
+    display: block;
+    max-width: 100%; /* Default size when sidebar is closed */
+    height: auto;
+    margin: 10px auto; /* Centers the image horizontally */
+    transition: max-width 0.3s ease; /* Smooth transition when resizing */
+}
+
+.sidebar.open img {
+    max-width: 40%; /* Resize the image when the sidebar is open */
+}
 .sidebar.open {
     width: 250px;
 }
@@ -49,7 +60,7 @@ body {
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 12px 20px;
+    padding: 12px 10px;
     color: white;
     text-decoration: none;
     transition: background-color 0.3s ease;
@@ -58,7 +69,7 @@ body {
 
 .sidebar .nav-link i {
     font-size: 20px;
-    margin-right: 10px;
+    margin-right: 5px;
 }
 
 .sidebar .nav-link span {
@@ -79,22 +90,31 @@ body {
 .sidebar .nav-link:hover i {
     color: #000;
 }
+.sidebar .nav-item {
+    margin-left: -5px; /* Push the entire item slightly to the left */
+}
 
-/* Toggle button */
-.toggle-btn {
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    width: 30px;
-    height: 30px;
-    background-color: #34495e;
+.sidebar .toggle-btn {
+    position: absolute; /* Fix the button at the bottom */
+    bottom: 20px; /* Add some spacing from the bottom */
+    left: 0;
+    width: 100%; /* Make it span the full width of the sidebar */
+    padding: 10px 15px;
+   
     color: white;
     border: none;
-    border-radius: 50%;
+    border-radius: 5px;
+    text-align: center;
     cursor: pointer;
-    z-index: 1000;
+    transition: background-color 0.3s ease;
+}
+.sidebar .toggle-btn:hover {
+    background-color: #bdc2e2; /* Darker shade on hover */
+    width: 50px; /* Make the button circular */
+    height: 50px; /* Equal width and height for a circle */
+    border-radius: 50%; /* Fully round the button */
+    line-height: 50px; /* Center the text/icon vertically */
+    text-align: center; /* Center the text/icon horizontally */
+    margin: 0 auto; /* Center the button horizontally */
 }
 
-.toggle-btn:hover {
-    background-color: #0950ba;
-}
