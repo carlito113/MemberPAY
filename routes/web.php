@@ -25,6 +25,8 @@ Route::middleware(['auth:admin'])->group(function () {
     // User Management for Super Admin
     Route::get('/superadmin/usermanagement', [AdminController::class, 'userManagementSuperAdmin'])->name('usermanagement.dashboard');
 
+Route::patch('/admins/{id}', [AdminController::class, 'updateAdminSuperadmin'])->name('admins.update');
+
     Route::get('/admin/payment', [AdminController::class, 'adminPayment'])->name('admin.addpayment');
 
     Route::post('/admin/addpayment', [AdminController::class, 'semStore'])->name('addpayment.semStore');
@@ -49,6 +51,9 @@ Route::middleware(['auth:admin'])->group(function () {
      Route::get('/admin/payment-history', [AdminController::class, 'paymentHistory'])->name('admin.paymenthistory');
 
      Route::get('/admin/payment-history-list', [AdminController::class, 'paymentHistoryList'])->name('admin.paymenthistorylist');
+
+
+    Route::get('/admin/paymenthistorylist/pdf', [AdminController::class, 'downloadPaymentHistoryPDF'])->name('admin.paymenthistorylist.pdf');
     
 
 });

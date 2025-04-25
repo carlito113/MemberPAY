@@ -101,6 +101,9 @@
                     @endforelse
                 </tbody>
             </table>
+                        <a href="{{ route('admin.paymenthistorylist.pdf', ['semester_id' => $currentSemester->id, 'section' => $section]) }}" class="btn btn-primary">
+                Download PDF
+            </a>
         </div>
     </div>
 

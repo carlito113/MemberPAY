@@ -38,7 +38,7 @@
                                 </div>
                                 <div class="dots">
                                     <h2>
-                                        <a href="{{ route('admin.paymenthistorylist', ['id' => $sem->id]) }}" class="bi bi-three-dots-vertical"></a>
+                                    <a href="{{ route('admin.paymenthistorylist', ['semester_id' => $sem->id]) }}" class="bi bi-three-dots-vertical"></a>
                                     </h2>
                                 </div>
                             </div>

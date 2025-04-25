@@ -130,14 +130,13 @@
                     const id = button.getAttribute('data-id');
                     const org = button.getAttribute('data-org');
 
-
                     document.getElementById('edit-name').value = name;
                     document.getElementById('edit-password').value = password;
                     document.getElementById('edit-id').value = id;
                     document.getElementById('edit-organization').value = org;
 
                     // Set the form action dynamically
-                    editForm.action = `/admins/${id}`; // adjust if route is named differently
+                    editForm.action = `/admins/${id}`; // Ensure this matches the route definition
                 });
             });
         });

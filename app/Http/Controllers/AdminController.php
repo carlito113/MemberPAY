@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Barryvdh\DomPDF\Facade\Pdf;
+
 use App\Models\Admin;
 use App\Models\Semester;
 use App\Models\YearSection;
@@ -10,22 +12,71 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+
 use function Laravel\Prompts\alert;
 
 class AdminController extends Controller
 {
     // Admin dashboard
     public function dashboard()
-    {
-        // Get the logged-in admin
-        $admin = Auth::guard('admin')->user(); // Use the admin guard here
+{
+    $admin = Auth::guard('admin')->user();
+    $organization = $admin->username;
 
-        // Get the organization of the logged-in admin
-        $organization = $admin->username;
+    // Fetch the latest semester
+    $currentSemester = Semester::where('admin_id', $admin->id)
+        ->orderBy('created_at', 'desc')
+        ->first();
 
-        // Pass the organization to the view
-        return view('admin.dashboard', compact('organization'));
+    if (!$currentSemester) {
+        return view('admin.dashboard', [
+            'organization' => $organization,
+            'totalMembers' => 0,
+            'totalPaid' => 0,
+            'totalUnpaid' => 0,
+            'recentTransactions' => [],
+        ]);
     }
+
+    // Fetch total members for the current semester
+    $totalMembers = Student::where('organization', $organization)
+        ->join('semester_student', function ($join) use ($currentSemester) {
+            $join->on('students.id', '=', 'semester_student.student_id')
+                 ->where('semester_student.semester_id', '=', $currentSemester->id);
+        })
+        ->count();
+
+    // Fetch total paid members for the current semester
+    $totalPaid = Student::where('organization', $organization)
+        ->join('semester_student', function ($join) use ($currentSemester) {
+            $join->on('students.id', '=', 'semester_student.student_id')
+                 ->where('semester_student.semester_id', '=', $currentSemester->id)
+                 ->where('semester_student.payment_status', '=', 'Paid');
+        })
+        ->count();
+
+    // Fetch total unpaid members for the current semester
+    $totalUnpaid = $totalMembers - $totalPaid;
+
+    // Fetch recent payment transactions for the current semester
+    $recentTransactions = Student::where('organization', $organization)
+        ->join('semester_student', function ($join) use ($currentSemester) {
+            $join->on('students.id', '=', 'semester_student.student_id')
+                 ->where('semester_student.semester_id', '=', $currentSemester->id);
+        })
+        ->select('students.id_number as student_id', 'students.first_name', 'students.last_name', 'students.section')
+        ->orderBy('semester_student.updated_at', 'desc')
+        ->limit(5)
+        ->get();
+
+    return view('admin.dashboard', [
+        'organization' => $organization,
+        'totalMembers' => $totalMembers,
+        'totalPaid' => $totalPaid,
+        'totalUnpaid' => $totalUnpaid,
+        'recentTransactions' => $recentTransactions,
+    ]);
+}
 
 
     //-------NEW ADDED-------
@@ -84,11 +135,19 @@ class AdminController extends Controller
     // Super Admin dashboard
     public function superAdminDashboard()
     {
-        // Fetch all admins (excluding the super admin)
-        $admins = Admin::where('role', 'admin')->get();
-
-        // Pass the admins data to the view
-        return view('superadmin.dashboard', compact('admins'));
+        // Fetch all admins with their total members (students) via semesters
+        $organizations = Admin::withCount(['semesters as students_count' => function ($query) {
+            $query->join('semester_student', 'semesters.id', '=', 'semester_student.semester_id')
+                  ->join('students', 'semester_student.student_id', '=', 'students.id')
+                  ->where('semester_student.semester_id', function ($subQuery) {
+                      $subQuery->select('id')
+                               ->from('semesters')
+                               ->orderBy('created_at', 'desc')
+                               ->limit(1); // Get the latest semester
+                  });
+        }])->get();
+    
+        return view('superadmin.dashboard', compact('organizations'));
     }
 
     // User management for super admin
@@ -99,6 +158,26 @@ class AdminController extends Controller
 
         // Pass the admins data to the view
         return view('superadmin.usermanagement', compact('admins'));
+    }
+
+    public function updateAdminSuperadmin(Request $request, $id)
+    {
+        // Validate the request
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'password' => 'required|string|min:8',
+        ]);
+    
+        // Find the admin by ID
+        $admin = Admin::findOrFail($id);
+    
+        // Update the admin's details
+        $admin->name = $request->input('name');
+        $admin->password = bcrypt($request->input('password')); // Hash the password
+        $admin->save();
+    
+        // Redirect back with a success message
+        return redirect()->route('usermanagement.dashboard')->with('success', 'Admin updated successfully.');
     }
 
     // Admin payment
@@ -253,7 +332,7 @@ class AdminController extends Controller
         $admin = Auth::guard('admin')->user();
         $organization = $admin->username;
         $section = $request->input('section');
-        $semesterId = session('current_semester_id');
+        $semesterId = $request->input('semester_id'); // Get semester_id from the request
     
         // Fetch current semester
         $currentSemester = Semester::where('id', $semesterId)
@@ -314,7 +393,59 @@ class AdminController extends Controller
         ));
     }
     
+
+   
     
+  
+    public function downloadPaymentHistoryPDF(Request $request)
+    {
+        $admin = Auth::guard('admin')->user();
+        $organization = $admin->username;
+        $semesterId = $request->input('semester_id'); // Get semester_id from the request
+        $section = $request->input('section'); // Get section filter from the request
+    
+        // Fetch current semester
+        $currentSemester = Semester::where('id', $semesterId)
+            ->where('admin_id', $admin->id)
+            ->first();
+    
+        if (!$currentSemester) {
+            return back()->withErrors(['error' => 'Semester not found.']);
+        }
+    
+        // Query students joined with semester_student pivot
+        $studentsQuery = Student::where('students.organization', $organization)
+            ->join('semester_student', function ($join) use ($semesterId) {
+                $join->on('students.id', '=', 'semester_student.student_id')
+                     ->where('semester_student.semester_id', '=', $semesterId);
+            })
+            ->select('students.*', 'semester_student.payment_status');
+    
+        // Apply section filter if provided
+        if ($section) {
+            $studentsQuery->where('students.section', $section);
+        }
+    
+        $students = $studentsQuery->get();
+    
+        // Pass data to the PDF view
+        $pdf = Pdf::loadView('admin.paymenthistorypdf', [
+            'organization' => $organization,
+            'currentSemester' => $currentSemester,
+            'students' => $students,
+            'section' => $section, // Pass the section for context
+        ]);
+    
+        // Generate the filename dynamically
+        $filename = 'payment_history_' . $currentSemester->semester;
+        if ($section) {
+            $filename .= '_section_' . $section;
+        }
+        $filename .= '.pdf';
+    
+        // Download the PDF
+        return $pdf->download($filename);
+    }
 
     
 

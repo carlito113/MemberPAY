@@ -36,6 +36,11 @@ class Student extends Authenticatable
 }
 
     
+public function organization()
+{
+    return $this->belongsTo(Organization::class);
+}
+
 
 
     

@@ -27,68 +27,60 @@
                 <br>
             </div>       
            
-                <div class="row">
-                
-                    <div class="col mb-3">
+            <div class="row">
+                <div class="col mb-3">
                     <div class="card h-100 d-flex flex-column">
-                            <div class="card-body d-flex flex-column justify-content-end">
-                                <h1 class="text text-white">100</h1>
-                                <h6 class="card-text text-white p-2 mt-auto">Total Members</h3>
-                                
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col mb-3">
-                        <div class="card h-100 d-flex flex-column">
-                            <div class="card-body d-flex flex-column justify-content-end">
-                                <h1 class="text text-white">100</h1>
-                                <h6 class="card-text text-white p-2 mt-auto">Total Paid</h3> 
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col mb-3">
-                        <div class="card h-100 d-flex flex-column">
-                            <div class="card-body d-flex flex-column justify-content-end">
-                                <h1 class="text text-white">100</h1>
-                                <h6 class="card-text text-white p-2 mt-auto">Total Unpaid</h3>
-                                
-                            </div>
+                        <div class="card-body d-flex flex-column justify-content-end">
+                            <h1 class="text text-white">{{ $totalMembers }}</h1>
+                            <h6 class="card-text text-white p-2 mt-auto">Total Members</h6>
                         </div>
                     </div>
                 </div>
-    <div class="card">
-        <h4 class="card-title p-2 mb-3">Recent Payment Transaction</h4>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Student ID</th>
-                        <th scope="col">First Name</th>
-                        <th scope="col">Last Name</th>
-                        <th scope="col">Section</th>
-                    </tr>
-                </thead>
-                @php
-                    // Example data - replace this with your actual payment transactions
-                    $students = [
-                        ['student_id' => '2024001', 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'section' => 'BSIT 1A'],
-                        ['student_id' => '2024002', 'first_name' => 'Maria', 'last_name' => 'Santos', 'section' => 'BSIT 1B'],
-                        ['student_id' => '2024003', 'first_name' => 'Pedro', 'last_name' => 'Penduko', 'section' => 'BSCS 2A'],
-                        ['student_id' => '2024004', 'first_name' => 'Ana', 'last_name' => 'Reyes', 'section' => 'BSIS 3A'],
-                    ];
-                @endphp
-                <tbody>
-                    @foreach ($students as $student)
-                        <tr>
-                            <td>{{ $student['student_id'] }}</td>
-                            <td>{{ $student['first_name'] }}</td>
-                            <td>{{ $student['last_name'] }}</td>
-                            <td>{{ $student['section'] }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-    </div>
+                <div class="col mb-3">
+                    <div class="card h-100 d-flex flex-column">
+                        <div class="card-body d-flex flex-column justify-content-end">
+                            <h1 class="text text-white">{{ $totalPaid }}</h1>
+                            <h6 class="card-text text-white p-2 mt-auto">Total Paid</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col mb-3">
+                    <div class="card h-100 d-flex flex-column">
+                        <div class="card-body d-flex flex-column justify-content-end">
+                            <h1 class="text text-white">{{ $totalUnpaid }}</h1>
+                            <h6 class="card-text text-white p-2 mt-auto">Total Unpaid</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="card">
+                <h4 class="card-title p-2 mb-3">Recent Payment Transactions</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Student ID</th>
+                            <th scope="col">First Name</th>
+                            <th scope="col">Last Name</th>
+                            <th scope="col">Section</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($recentTransactions as $transaction)
+                            <tr>
+                                <td>{{ $transaction->student_id }}</td>
+                                <td>{{ $transaction->first_name }}</td>
+                                <td>{{ $transaction->last_name }}</td>
+                                <td>{{ $transaction->section }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center">No recent transactions found</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
         </div>
 
