@@ -16,42 +16,37 @@
         <div class="main-content flex-grow-1 p-4">
             <div class="row position-relative">
                 <h1 class="col-10 fw-bold text-warning mb-4">{{ $organization }} ORGANIZATION</h1>
-               
             </div>
 
             <div class="line"></div>
             <br>
 
             <div class="row">
-                @if($semesters->isNotEmpty())
-                    @foreach ($semesters as $sem)
-                        <div class="col-12 mb-3">
-                            <div class="card-custom shadow-sm d-flex justify-content-between align-items-center">
-                                <div class="line-separator"></div>
-                                <div class="d-flex align-items-center gap-3">
-                                    <div></div>
-                                  <div>
-                                        <h3 class="fw-bold org-title mb-1">
-                                            {{ strtoupper($sem->semester) }} COLLECTION - Academic Year: {{ $sem->academic_year }}
-                                        </h3>
-                                    </div>
-                                </div>
-                                <div class="dots">
-                                    <h2>
-                                    <a href="{{ route('admin.paymenthistorylist', ['semester_id' => $sem->id]) }}" class="bi bi-three-dots-vertical"></a>
-                                    </h2>
-                                </div>
+    @if($semesters->isNotEmpty())
+        @foreach ($semesters as $sem)
+            <div class="col-12 mb-3 position-relative">
+                <a href="{{ route('admin.paymenthistorylist', ['semester_id' => $sem->id]) }}" class="text-decoration-none text-dark d-block">
+                    <div class="card-custom shadow-sm d-flex justify-content-between align-items-center">
+                        <div class="line-separator"></div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div></div>
+                            <div>
+                                <h3 class="fw-bold org-title mb-1">
+                                    {{ strtoupper($sem->semester) }} COLLECTION - Academic Year: {{ $sem->academic_year }}
+                                </h3>
                             </div>
                         </div>
-                    @endforeach
-                @else
-                    <p>No semester records found.</p>
-                @endif
+                       
+                    </div>
+                </a>
             </div>
+        @endforeach
+    @else
+        <p>No semester records found.</p>
+    @endif
+</div>
 
 
-
-            
         </div>
     </div>
 
@@ -79,8 +74,5 @@
             });
         });
     </script>
-
-
-  
 </body>
 </html>

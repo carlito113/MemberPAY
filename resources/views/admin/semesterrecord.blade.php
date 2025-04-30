@@ -16,9 +16,28 @@
     <div class="d-flex">
         <div class="main-content flex-grow-1 p-4">
             <div class="main-container">
-                <h1 class="fw-bold text-warning mb-4">{{ $organization }} ORGANIZATION</h1>
+                <div class="row">
+                    <div class="col-10">
+                    <h1 class="fw-bold text-warning mb-4">{{ $organization }} ORGANIZATION</h1>
+                    </div>
+                    <div class="col-2">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <a href="{{ route('admin.addpayment') }}" class="btn btn-primary">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                </div>
+                    </div>
+                </div>
+                
+                
                 <div class="line"></div>
-                <h1 class="fw-bold text-warning mb-4">{{ $currentSemester->semester }} {{ $currentSemester->academic_year }}</h1>
+                @if ($currentSemester)
+                <h1 class="fw-bold text-warning mb-4">
+        {{ $currentSemester->semester }} {{ $currentSemester->academic_year }}
+    </h1>
+                @else
+                    <h1 class="text-danger">No semester selected or found.</h1>
+                @endif
                 <br>
             </div>
 
@@ -67,6 +86,7 @@
                     @endforeach
                 </select>
             </form>
+            
 
             <!-- Students Table -->
             <table class="table table-striped">
@@ -76,6 +96,7 @@
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Payment Status</th>
+                        
                     </tr>
                 </thead>
                 <tbody>

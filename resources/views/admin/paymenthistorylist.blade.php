@@ -16,16 +16,27 @@
     <div class="d-flex">
         <div class="main-content flex-grow-1 p-4">
             <div class="main-container">
-                <h1 class="fw-bold text-warning mb-4">{{ $organization }} ORGANIZATION</h1>
+                <div class="row">
+                    <div class="col-10">
+                        <h1 class="fw-bold text-warning mb-4">{{ $organization }} ORGANIZATION</h1>
+                    </div>
+                    <div class="col-2">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <a href="{{ route('admin.paymenthistory') }}" class="btn btn-primary">
+                                <i class="bi bi-arrow-left"></i> Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <div class="line"></div>
+                <br>
                 @if ($semesters->isNotEmpty())
-    <h1 class="fw-bold text-warning mb-4">
-        {{ $semesters->first()->semester }} {{ $semesters->first()->academic_year }}
+                <h1 class="fw-bold text-warning mb-4">
+        {{ $currentSemester->semester }} {{ $currentSemester->academic_year }}
     </h1>
-@else
-    <h1 class="text-danger">No semester records found for this organization.</h1>
-@endif
-
+                @else
+                    <h1 class="text-danger">No semester records found for this organization.</h1>
+                @endif
                 <br>
             </div>
 
@@ -61,19 +72,22 @@
 
             <!-- Filter Form -->
             <form method="GET" action="{{ route('admin.paymenthistorylist') }}" class="mb-4">
-                <select name="section" class="form-select" id="sectionDropdown" style="max-width: 200px; display: inline-block;" onchange="this.form.submit()">
-                    <option value="">Show All</option>
-                    @foreach ($groupedSections as $year => $sections)
-                        <optgroup label="{{ ordinal($year) }} Year">
-                            @foreach ($sections as $sec)
-                                <option value="{{ $sec }}" {{ $section == $sec ? 'selected' : '' }}>
-                                    {{ ordinal((int) substr($sec, 2, 1)) }} Year - {{ $sec }}
-                                </option>
-                            @endforeach
-                        </optgroup>
-                    @endforeach
-                </select>
-            </form>
+    <input type="hidden" name="semester_id" value="{{ $currentSemester ? $currentSemester->id : '' }}">
+    
+    <select name="section" class="form-select" id="sectionDropdown" style="max-width: 200px; display: inline-block;" onchange="this.form.submit()">
+        <option value="">Show All</option>
+        @foreach ($groupedSections as $year => $sections)
+            <optgroup label="{{ ordinal($year) }} Year">
+                @foreach ($sections as $sec)
+                    <option value="{{ $sec }}" {{ $section == $sec ? 'selected' : '' }}>
+                        {{ ordinal((int) substr($sec, 2, 1)) }} Year - {{ $sec }}
+                    </option>
+                @endforeach
+            </optgroup>
+        @endforeach
+    </select>
+</form>
+
 
             <!-- Students Table -->
             <table class="table table-striped">
@@ -82,28 +96,36 @@
                         <th>Student Id</th>
                         <th>First Name</th>
                         <th>Last Name</th>
+                        <th>Section</th>
                         <th>Payment Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($students as $student)
                         <tr>
-                        <td>{{ $student->id }}</td>
-        <td>{{ $student->first_name }}</td>
-        <td>{{ $student->last_name }}</td>
-        <td>{{ $student->section }}</td>
-        <td>{{ $student->payment_status }}</td> <!-- from pivot via join -->
+                            <td>{{ $student->id_number }}</td>
+                            <td>{{ $student->first_name }}</td>
+                            <td>{{ $student->last_name }}</td>
+                            <td>{{ $student->section }}</td>
+                            <td>{{ $student->payment_status }}</td> 
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center">No students found</td>
+                            <td colspan="5" class="text-center">No students found</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
-                        <a href="{{ route('admin.paymenthistorylist.pdf', ['semester_id' => $currentSemester->id, 'section' => $section]) }}" class="btn btn-primary">
-                Download PDF
-            </a>
+
+            @if ($currentSemester)
+    <a href="{{ route('admin.paymenthistorylist.pdf', [
+        'semester_id' => $currentSemester->id,
+        'section' => $section
+    ]) }}" class="btn btn-primary">
+        Download PDF
+    </a>
+@endif
+
         </div>
     </div>
 
@@ -129,8 +151,6 @@
                 // Save the state
                 localStorage.setItem('sidebarOpen', sidebar.classList.contains('open'));
             });
-
-            
         });
     </script>
 </body>

@@ -30,7 +30,8 @@
 
                     <form action="{{ route('login.submit') }}" method="POST">
                         @csrf
-                        <h1>Login</h1>
+                        <h5>Welcome to</h5>
+                        <h1>MemberPay</h1>
                         {{-- <div class="input-box">
                             <i class='bx bxs-buildings'></i>
                             <select name="organization" placeholder = "Organization" required>
@@ -66,8 +67,7 @@
                 </div>
                 <div class="toggle-box">
                     <div class="toggle-panel toggle-left">
-                        <h1>Hello, <br>Welcome to</h1>
-                        <h1 class="mt-3" style = "">MemberPay</h1>
+                    <img src="{{ asset('3d-computer(1).png') }}" class="computer">
                         {{-- <p class="text-center pt-0 pb-0 p-4 mb-0" style="font-size: 13px;">
                             MemberPay is a payment platform that allows you to be a member of the organization.
                         </p> --}}

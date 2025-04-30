@@ -55,6 +55,8 @@ Route::patch('/admins/{id}', [AdminController::class, 'updateAdminSuperadmin'])-
 
     Route::get('/admin/paymenthistorylist/pdf', [AdminController::class, 'downloadPaymentHistoryPDF'])->name('admin.paymenthistorylist.pdf');
     
+    Route::post('/admin/remove-semester', [AdminController::class, 'removeSemester'])->name('admin.removeSemester');
+
 
 });
 

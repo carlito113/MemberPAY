@@ -9,23 +9,32 @@
     list-style: none;
 }
 
+
 .parent {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(90deg, #e2e2e2, #888d9b);
+    background-image: url("/ConversionBLDG.png");
+    background-size: cover;
+    background-position: center;
+  
+    background-attachment: fixed;
+
+   
+   
 }
 
 .container {
     position: relative;
     width: 850px;
     height: 550px;
-    background: #fff;
+   
     margin: 20px;
     border-radius: 30px;
     box-shadow: 0 0 30px rgba(0, 0, 0, .2);
     overflow: hidden;
+    
 }
 
 .container h1 {
@@ -47,7 +56,7 @@ form {
     right: 0;
     width: 50%;
     height: 100%;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.8);  /* Set the background opacity */
     display: flex;
     align-items: center;
     color: #333;
@@ -55,7 +64,18 @@ form {
     padding: 40px;
     z-index: 1;
     transition: .6s ease-in-out 1.2s, visibility 0s 1s;
+
 }
+
+.computer {
+    position: absolute;
+    width: 60%;
+    height: 40%;
+    
+    z-index: 0;
+}
+
+ 
 
 .container.active .form-box {
     right: 50%;
@@ -77,9 +97,9 @@ form {
 .input-box input {
     width: 100%;
     padding: 13px 50px 13px 20px;
-    background: #eee;
+    background: #ffffff;
     border-radius: 8px;
-    border: none;
+    border: #0f0f0f 1px solid;
     outline: none;
     font-size: 16px;
     color: #141414;
@@ -109,7 +129,8 @@ form {
 } */
 
 .btn {
-    width: 100%;
+    margin-top: 10px;
+    width: 60%;
     height: 48px;
     background: #00296B;
     border-radius: 8px;
@@ -149,7 +170,6 @@ form {
     width: 300%;
     height: 100%;
     background: #00296B;
-    border-radius: 150px;
     z-index: 2;
     transition: 1.8s ease-in-out;
 }
@@ -224,9 +244,17 @@ form {
         top: -270%;
         width: 100%;
         height: 300%;
-        border-radius: 20vw;
+       
     }
 
+    .computer {
+        position: absolute;
+        width: 40%;
+        height: 70%;
+        
+        z-index: 0;
+    }
+    
     .container.active .toggle-box::before {
         left: 0;
         top: 70%;

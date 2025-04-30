@@ -23,36 +23,52 @@
             <br>
 
             <div class="row">
-                @if($semesters->isNotEmpty())
-                    @foreach ($semesters as $sem)
-                        <div class="col-12 mb-3">
-                            <div class="card-custom shadow-sm d-flex justify-content-between align-items-center">
-                                <div class="line-separator"></div>
-                                <div class="d-flex align-items-center gap-3">
-                                    <div></div>
-                                  <div>
-                                        <h3 class="fw-bold org-title mb-1">
-                                            {{ strtoupper($sem->semester) }} COLLECTION - Academic Year: {{ $sem->academic_year }}
-                                        </h3>
-                                    </div>
-                                </div>
-                                <div class="dots">
-                                    <h2>
-                                        <a href="{{ route('admin.setSemester', ['id' => $sem->id]) }}" class="bi bi-three-dots-vertical"></a>
-                                    </h2>
-                                </div>
+    @if($semesters->isNotEmpty())
+        @foreach ($semesters as $sem)
+            <div class="col-12 mb-3 position-relative">
+                <a href="{{ route('admin.semesterrecord', ['semester_id' => $sem->id]) }}" class="text-decoration-none text-dark d-block">
+                        
+                        <div class="card-custom shadow-sm d-flex justify-content-between align-items-center">
+                    
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="line-separator"></div>
+                            <div></div>
+                            <div>
+                                <h3 class="fw-bold org-title mb-1">
+                                    {{ strtoupper($sem->semester) }} COLLECTION - Academic Year: {{ $sem->academic_year }}
+                                </h3>
                             </div>
                         </div>
-                    @endforeach
-                @else
-                    <p>No semester records found.</p>
-                @endif
+                        <!-- Three Dots Dropdown -->
+                        <div class="dropdown dots" onclick="event.stopPropagation();">
+                           
+                                <a href="#" role="button" class="text-warning dropdown-toggle " data-bs-toggle="dropdown" aria-expanded="false">
+                                   
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end ">
+                                    <li>
+                                        <form action="{{ route('admin.removeSemester') }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this semester?')">
+                                            @csrf
+                                            <input type="hidden" name="semester_id" value="{{ $sem->id }}">
+                                            <button class="dropdown-item text-danger" type="submit">Remove</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </h2>
+                        </div>
+                    </div>
+                </a>
             </div>
-
-
+        @endforeach
+    @else
+        <p>No semester records found.</p>
+    @endif
+</div>  
 
             <div class="modal fade" id="addSem" tabindex="-1" aria-labelledby="addSemLabel" aria-hidden="true">
                 <div class="modal-dialog">
+               
+
                     <form id="addSemForm" method="POST" action="{{ route('addpayment.semStore') }}">
                         @csrf
                         <div class="modal-content">
@@ -61,7 +77,24 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
+                           
+
                                 <div class="mb-3">
+                                @if ($errors->has('duplicate'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ $errors->first('duplicate') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+@if ($errors->has('sameyear'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ $errors->first('sameyear') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+                                <div id="yearErrorAlert" class="alert alert-danger d-none" role="alert">
+                                    Start year cannot be later than end year.
+                                </div>
                                     <label for="semester" class="form-label">Semester</label>
                                     <select class="form-select" id="semester" name="semester">
                                         <option value="First Semester">First Semester</option>
@@ -86,6 +119,7 @@
             </div>
         </div>
     </div>
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -110,8 +144,80 @@
                 localStorage.setItem('sidebarOpen', sidebar.classList.contains('open'));
             });
         });
-    </script>
 
+        document.addEventListener('DOMContentLoaded', function () {
+    const addSemForm = document.getElementById('addSemForm');
+    const fromYearInput = document.getElementById('academic-year-from');
+    const toYearInput = document.getElementById('academic-year-to');
+    const yearErrorAlert = document.getElementById('yearErrorAlert');
+
+    // Create alerts dynamically
+    const duplicateErrorAlert = document.createElement('div');
+    duplicateErrorAlert.classList.add('alert', 'alert-danger', 'mt-2');
+    duplicateErrorAlert.style.display = 'none';
+    duplicateErrorAlert.innerText = 'This record for this semester and academic year already exists.';
+    addSemForm.querySelector('.modal-body').appendChild(duplicateErrorAlert);
+
+    const sameYearAlert = document.createElement('div');
+    sameYearAlert.classList.add('alert', 'alert-danger', 'mt-2');
+    sameYearAlert.style.display = 'none';
+    sameYearAlert.innerText = 'The start and end year cannot be the same.';
+    addSemForm.querySelector('.modal-body').appendChild(sameYearAlert);
+
+    const gapYearAlert = document.createElement('div');
+    gapYearAlert.classList.add('alert', 'alert-danger', 'mt-2');
+    gapYearAlert.style.display = 'none';
+    gapYearAlert.innerText = 'The academic year must only span one year (e.g., 2024-2025).';
+    addSemForm.querySelector('.modal-body').appendChild(gapYearAlert);
+
+    addSemForm.addEventListener('submit', function (event) {
+        const fromYear = parseInt(fromYearInput.value, 10);
+        const toYear = parseInt(toYearInput.value, 10);
+        const semester = document.getElementById('semester').value;
+        const academicYear = `${fromYear}-${toYear}`;
+        const fullKey = semester.toUpperCase() + '|' + academicYear;
+
+        let valid = true;
+
+        // Reset alerts
+        yearErrorAlert.classList.add('d-none');
+        duplicateErrorAlert.style.display = 'none';
+        sameYearAlert.style.display = 'none';
+        gapYearAlert.style.display = 'none';
+
+        // Validation checks
+        if (fromYear > toYear) {
+            yearErrorAlert.classList.remove('d-none');
+            valid = false;
+        }
+
+        if (fromYear === toYear) {
+            sameYearAlert.style.display = 'block';
+            valid = false;
+        }
+
+        if (toYear - fromYear > 1) {
+            gapYearAlert.style.display = 'block';
+            valid = false;
+        }
+
+        if (existingSemesters.includes(fullKey)) {
+            duplicateErrorAlert.style.display = 'block';
+            valid = false;
+        }
+
+        if (!valid) {
+            event.preventDefault(); // Stop form submit
+        }
+    });
+});
+
+// Pass existing semesters to JavaScript
+const existingSemesters = @json($semesters->map(function ($sem) {
+    return strtoupper($sem->semester) . '|' . $sem->academic_year;
+}));
+
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

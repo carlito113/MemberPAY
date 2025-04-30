@@ -206,9 +206,21 @@ class AdminController extends Controller
     // Combine academic year fields into one string
     $academicYear = $request->academic_year_from . '-' . $request->academic_year_to;
 
+    // Check for duplicate semester and academic year
+    $exists = Semester::where('semester', $request->semester)
+    ->where('academic_year', $academicYear)
+    ->exists();
+
+    // If it exists, redirect back with an error message
+    if ($exists) {
+        return redirect()->back()
+            ->withErrors(['duplicate' => 'This semester and academic year already exist.'])
+            ->withInput();
+    }
+
     // Create semester
     $semester = Semester::create([
-        'admin_id' => auth()->id(), // or however you're assigning admin
+        'admin_id' => auth()->id(),
         'semester' => $request->semester,
         'academic_year' => $academicYear,
     ]);
@@ -216,88 +228,91 @@ class AdminController extends Controller
     // Attach all students with default "Unpaid" payment_status
     $students = Student::all();
     foreach ($students as $student) {
-        $semester->students()->attach($student->id, ['payment_status' => 'Unpaid']);
+    $semester->students()->attach($student->id, ['payment_status' => 'Unpaid']);
     }
-
-    return redirect()->back()->with('success', 'Semester created and students initialized with unpaid status.');
-}
-
+        return redirect()->back()->with('success', 'Semester created and students initialized with unpaid status.');
+        }
 
 
     // Set semester - this is where the semester is SELECTED AND REDIRECTED to the semester record page
     public function setSemester($id)
     {
-        // Store the selected semester ID in the session
-        session(['current_semester_id' => $id]);
-
-        // Redirect to the semester record page
-        return redirect()->route('admin.semesterrecord');
+        session(['current_semester_id' => $id]); // Optional fallback
+    return redirect()->route('admin.semesterrecord', ['semester_id' => $id]);
     }
 
    
 
+
     // Show semester record----blade SEMESTERRECORD.BLADE
-  public function semesterRecord(Request $request)
-{
-    $admin = Auth::guard('admin')->user(); // Get the logged-in admin
-    $organization = $admin->username; // Get the organization name
+    public function semesterRecord(Request $request)
+    {
+        $admin = Auth::guard('admin')->user(); // Get the logged-in admin
+        $organization = $admin->username; // Get the organization name
+    
+        $section = $request->input('section');
+    
+       
+        // Try to get from request first, then session
+    $semesterId = $request->input('semester_id') ?? session('current_semester_id');
 
-    // Get the selected section (if any) from the request
-    $section = $request->input('section');
+    // If found in request, update the session (keep it fresh)
+    if ($request->has('semester_id')) {
+        session(['current_semester_id' => $semesterId]);
+    }
 
-    // Fetch the selected semester ID from the session
-    $semesterId = session('current_semester_id');
-
-    // Fetch the specific semester based on the session ID
     $currentSemester = Semester::where('id', $semesterId)
         ->where('admin_id', $admin->id)
         ->first();
 
-    // 🆕 Get students via the relationship on the current semester, with payment_status from pivot
-    $studentsQuery = $currentSemester
-        ? $currentSemester->students()->withPivot('payment_status')->where('organization', $organization)
-        : Student::where('organization', $organization); // fallback
-
-    // Apply section filter if selected
-    if ($section) {
-        $studentsQuery->where('section', $section);
+    if (!$currentSemester) {
+        return redirect()->route('admin.addpayment')->withErrors(['error' => 'No semester selected or found.']);
     }
 
-    $students = $studentsQuery->get();
-
-    // Get all semesters for the admin
-    $semesters = Semester::where('admin_id', $admin->id)->get();
-
-    // Group sections by year for dropdown filtering
-    $availableSections = Student::where('organization', $organization)
-        ->pluck('section')
-        ->unique()
-        ->sort()
-        ->values();
-
-    $groupedSections = [];
-    foreach ($availableSections as $sec) {
-        $year = (int) substr($sec, 2, 1);
-        $groupedSections[$year][] = $sec;
+    
+        // Get students via the relationship on the current semester, with payment_status from pivot
+        $studentsQuery = $currentSemester->students()->withPivot('payment_status')->where('organization', $organization);
+    
+        // Apply section filter if selected
+        if ($section) {
+            $studentsQuery->where('section', $section);
+        }
+    
+        $students = $studentsQuery->get();
+    
+        // Get all semesters for the admin
+        $semesters = Semester::where('admin_id', $admin->id)->get();
+    
+        // Group sections by year for dropdown filtering
+        $availableSections = Student::where('organization', $organization)
+            ->pluck('section')
+            ->unique()
+            ->sort()
+            ->values();
+    
+        $groupedSections = [];
+        foreach ($availableSections as $sec) {
+            $year = (int) substr($sec, 2, 1);
+            $groupedSections[$year][] = $sec;
+        }
+    
+        // Get yearSections for dropdown
+        $yearSections = YearSection::where('admin_id', $admin->id)
+            ->orderBy('year')
+            ->orderBy('section')
+            ->get()
+            ->groupBy('year');
+    
+        return view('admin.semesterrecord', compact(
+            'organization',
+            'semesters',
+            'currentSemester',
+            'yearSections',
+            'students',
+            'groupedSections',
+            'section'
+        ));
     }
-
-    // Get yearSections for dropdown
-    $yearSections = YearSection::where('admin_id', $admin->id)
-        ->orderBy('year')
-        ->orderBy('section')
-        ->get()
-        ->groupBy('year');
-
-    return view('admin.semesterrecord', compact(
-        'organization',
-        'semesters',
-        'currentSemester',
-        'yearSections',
-        'students',
-        'groupedSections',
-        'section'
-    ));
-}
 
 
 
@@ -446,6 +461,16 @@ class AdminController extends Controller
         // Download the PDF
         return $pdf->download($filename);
     }
+
+
+    public function removeSemester(Request $request)
+{
+    $semester = Semester::findOrFail($request->semester_id);
+
+    $semester->delete(); // Permanently deletes
+
+    return redirect()->back()->with('success', 'Semester permanently deleted.');
+}
 
     
 

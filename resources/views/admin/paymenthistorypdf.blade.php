@@ -1,28 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Payment History</title>
+    <title>Payment History PDF</title>
+    <link rel="stylesheet" href="{{ asset('css/pdf.css') }}">
     <style>
         body {
-            font-family: Arial, sans-serif;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    font-family: Arial, sans-serif;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+th {
+    background-color: #f2f2f2;
+}
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
     </style>
 </head>
 <body>
