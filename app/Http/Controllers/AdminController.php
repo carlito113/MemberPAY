@@ -287,13 +287,20 @@ class AdminController extends Controller
         ]);
     
         // Attach all students with unpaid status and the admin_id recorded in pivot
-        $students = Student::all(); // You can filter students by organization here if needed
-        foreach ($students as $student) {
-            $semester->students()->attach($student->id, [
-                'payment_status' => 'Unpaid',
-                'admin_id' => auth()->id(), // <- This ensures unpaid students are also linked to the admin
-            ]);
-        }
+      // ✅ Filter students based on organization (case-insensitive match)
+    $adminOrg = trim(strtolower(auth()->user()->username));
+    $students = Student::whereRaw('TRIM(LOWER(organization)) = ?', [$adminOrg])->get();
+
+    // Attach only matching students
+    foreach ($students as $student) {
+        $semester->students()->attach($student->id, [
+            'payment_status' => 'Unpaid',
+            'admin_id' => auth()->id(),
+            'admin_name' => auth()->user()->name, // Optional snapshot
+        ]);
+}
+
+        
     
         return redirect()->back()->with('success', 'Semester created and students initialized with unpaid status.');
     }

@@ -51,20 +51,21 @@
                             <h5 class="text-primary mb-3">School Year: {{ $schoolYear }}</h5>
                             
                             @foreach ($semestersInYear as $semester)
-                                <div class="mb-3">
-                                    <div class="row">
-                                        <h6 class="col-md-6 m-0">Semester: {{ $semester->semester }}</h6>
-                                        <h6 class="col-md-6 m-0">Status: {{ ucfirst($semester->pivot->payment_status) }}</h6>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <p class="col-md-6 m-0">Date of Transaction: {{ \Carbon\Carbon::parse($semester->pivot->updated_at)->format('m/d/Y') }}</p>
-                                        <p class="col-md-6 m-0"><h6 class="m-0">Treasurer: {{ $semester->pivot->admin_name ?? 'Unknown' }}</h6>
+    @if (!empty($semester->pivot->admin_name))
+        <div class="mb-3">
+            <div class="row">
+                <h6 class="col-md-6 m-0">Semester: {{ $semester->semester }}</h6>
+                <h6 class="col-md-6 m-0">Status: {{ ucfirst($semester->pivot->payment_status) }}</h6>
+            </div>
+            <div class="row mt-2">
+                <p class="col-md-6 m-0">Date of Transaction: {{ \Carbon\Carbon::parse($semester->pivot->updated_at)->format('m/d/Y') }}</p>
+                <h6 class="col-md-6 m-0">Treasurer: {{ $semester->pivot->admin_name }}</h6>
+            </div>
+        </div>
+        <hr>
+    @endif
+@endforeach
 
-                                        </p>
-                                    </div>
-                                </div>
-                                <hr>
-                            @endforeach
                         </div>
                     @endforeach
                 </div>
