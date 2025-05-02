@@ -40,15 +40,7 @@
                                 <option value="jco">JCO</option>
                             </select>
                         </div> --}}
-                        @if($errors->any())
-                            <div class="alert alert-danger">
-                                <ul>
-                                    @foreach($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
+
                         <div class="input-box">
                             <i class='bx bxs-user' style="position: absolute; top: 50%; right: 10px;"></i>
                             <input type="text" name="username" placeholder="Username" autocomplete="username" required >
@@ -63,6 +55,15 @@
                         <a href="" style="color: rgb(65, 62, 62);" routerLink="/register">
                             <p>Terms and Conditions</p>
                         </a>
+                        @if($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                     </form>
                 </div>
                 <div class="toggle-box">
@@ -75,7 +76,7 @@
                 </div>
             </div>
         </div>
-
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             const toggle = document.getElementById('togglePassword');
             const password = document.getElementById('password');

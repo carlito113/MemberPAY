@@ -48,5 +48,11 @@ class Admin extends Authenticatable // Extend the Authenticatable class
     return $this->hasMany(Student::class);
 }
 
+public function payments()
+{
+    return $this->hasMany(SemesterStudent::class); // if using a model for the pivot
+}
+
+
 }
 

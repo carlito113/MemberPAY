@@ -23,7 +23,7 @@ class Semester extends Model
     public function students()
 {
     return $this->belongsToMany(Student::class, 'semester_student', 'semester_id', 'student_id')
-                ->withPivot('payment_status')
+                ->withPivot('payment_status', 'admin_id')
                 ->withTimestamps();
 }
 

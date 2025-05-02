@@ -18,6 +18,8 @@ Route::middleware(['auth:admin'])->group(function () {
    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
    Route::get('/admin/addpayment', [AdminController::class, 'showAddPaymentForm'])->name('admin.showaddpayment');
    Route::get('/admin/members', [AdminController::class, 'showMembers'])->name('admin.members');
+   Route::patch('/admin/students/{id}/toggle-status', [AdminController::class, 'toggleStatus'])->name('admin.students.toggleStatus');
+
 
    
     // Super Admin Dashboard
@@ -67,6 +69,9 @@ Route::middleware(['auth:student'])->group(function () {
     Route::get('/student/organization', [StudentAuthController::class, 'viewCardOne'])->name('student.organizationcard');
 
     Route::get('/student/yearorganization', [StudentAuthController::class, 'viewCardTwo'])->name('student.yearorganizationcard');
+
+    Route::get('/student/profile', [StudentAuthController::class, 'studentProfile'])->name('student.profile');
+
 
 });
 

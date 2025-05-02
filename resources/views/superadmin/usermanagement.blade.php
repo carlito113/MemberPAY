@@ -12,7 +12,7 @@
 </head>
 <body>
     <div class="d-flex">
-        @include('sidenav')
+        @include('superadmin.navsuperadmin')
         <!-- Main content -->
         <div class="main-content flex-grow-1 p-4">
             <h2 class="fw-bold text-warning mb-4">User Management</h2>

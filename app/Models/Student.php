@@ -31,7 +31,7 @@ class Student extends Authenticatable
     public function semesters()
 {
     return $this->belongsToMany(Semester::class, 'semester_student', 'student_id', 'semester_id')
-                ->withPivot('payment_status')
+                ->withPivot('payment_status', 'admin_id', 'admin_name')
                 ->withTimestamps();
 }
 

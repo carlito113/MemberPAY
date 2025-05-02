@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
@@ -27,21 +28,42 @@ class StudentController extends Controller
     }
 
     // Update student
-    public function update(Request $request, Student $student)
-    {
-        // dd($request->all());
-        $request->validate([
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'contact_number' => ['required', 'regex:/^09\d{9}$/'],
-            'year_level' => 'required|integer|between:1,4',
-            'section' => 'required|string',
-        ]);
+    // public function update(Request $request, Student $student)
+    // {
+    //     // dd($request->all());
+    //     $request->validate([
+    //         'first_name' => 'required|string',
+    //         'last_name' => 'required|string',
+    //         'contact_number' => ['required', 'regex:/^09\d{9}$/'],
+    //         'year_level' => 'required|integer|between:1,4',
+    //         'section' => 'required|string',
+    //     ]);
 
-        $student->update($request->all());
+    //     $student->update($request->all());
 
-        return back()->with('success', 'Student updated successfully.');
-    }
+    //     return back()->with('success', 'Student updated successfully.');
+    // }
+        public function update(Request $request, Student $student)
+        {
+            $validator = Validator::make($request->all(), [
+                'first_name' => ['required', 'regex:/^[A-Za-z\s\-]+$/'],
+                'last_name' => ['required', 'regex:/^[A-Za-z\s\-]+$/'],
+                'contact_number' => ['required', 'regex:/^09\d{9}$/'],
+                'year_level' => 'required|integer|between:1,4',
+                'section' => 'required|string',
+            ]);
+
+            if ($validator->fails()) {
+                return back()
+                    ->withErrors($validator)
+                    ->withInput()
+                    ->with('editing_student_id', $student->id);
+            }
+
+            $student->update($request->all());
+
+            return back()->with('success', 'Student updated successfully.');
+        }
 
     // Transfer student to another organization
     public function transfer(Request $request, Student $student)
@@ -55,4 +77,7 @@ class StudentController extends Controller
 
         return back()->with('success', 'Student transferred to ' . $request->organization . ' successfully.');
     }
+
+
+    
 }

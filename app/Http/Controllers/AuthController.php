@@ -38,7 +38,11 @@ class AuthController extends Controller
 
         // Try Student login if Admin login fails
         $student = Student::where('id_number', $validated['username'])->first();
-        \Log::info('Student found:', ['student' => $student]);
+        if ($student){
+            if ($student->status !== 'active') {
+                return back()->withErrors(['login' => 'Your account is not active.']);
+            }
+        }
         if ($student && strtolower(trim($student->last_name)) === strtolower(trim($validated['password']))) {
             Auth::guard('student')->login($student);
 

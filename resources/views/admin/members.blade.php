@@ -55,20 +55,23 @@
                 @endphp
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('admin.members') }}" class="mb-4">
-                    <select name="section" class="form-select" id="sectionDropdown" style="max-width: 200px; display: inline-block;" onchange="this.form.submit()">
+                    <select name="filter" class="form-select" style="max-width: 300px; display: inline-block;" onchange="this.form.submit()">
                         <option value="">Show All</option>
                         @foreach ($groupedSections as $year => $sections)
-                            <optgroup label="{{ ordinal($year) }} Year">
-                                @foreach ($sections as $sec)
-                                    <option value="{{ $sec }}" {{ $section == $sec ? 'selected' : '' }}>
-                                        {{ ordinal((int) substr($sec, 2, 1)) }} Year - {{ $sec }}
-                                    </option>
-                                @endforeach
-                            </optgroup>
+                            <option value="year_{{ $year }}"
+                                style="font-weight: bold;"
+                                {{ request('filter') == 'year_'.$year ? 'selected' : '' }}>
+                                {{ ordinal($year) }} Year
+                            </option>
+                            @foreach ($sections as $sec)
+                                <option value="section_{{ $sec }}"
+                                    {{ request('filter') == 'section_'.$sec ? 'selected' : '' }}>
+                                    {{ ordinal((int) substr($sec, 2, 1)) }} Year - {{ $sec }}
+                                </option>
+                            @endforeach
                         @endforeach
                     </select>
                 </form>
-
                 <!-- Students Table -->
                 <table class="table table-striped">
                     <thead>
@@ -78,7 +81,9 @@
                             <th>Contact Number</th>
                             <th>Year Level</th>
                             <th>Section</th>
+                            <th>Status</th>
                             <th>Action</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -89,10 +94,21 @@
                                 <td>{{ $student->contact_number }}</td>
                                 <td> Year {{ $student->year_level }}</td>
                                 <td>{{ $student->section }}</td>
+                                <td>{{$student->status}}</td>
+
                                 <td>
                                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ $student->id }}">Edit</button>
                                     <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#transferModal{{ $student->id }}">Transfer</button>
+                                    <form method="POST" action="{{ route('admin.students.toggleStatus', $student->id) }}" class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn {{ $student->status === 'active' ? 'btn-danger' : 'btn-success' }}">
+                                            {{ $student->status === 'active' ? 'Deactivate' : 'Activate' }}
+                                        </button>
+                                    </form>
                                 </td>
+
+
                             </tr>
                             <!-- Edit Modal -->
                             <div class="modal fade" id="editStudentModal{{ $student->id }}" tabindex="-1">
@@ -106,21 +122,69 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <input name="first_name" class="form-control mb-2" value="{{ $student->first_name }}" required>
-                                                <input name="last_name" class="form-control mb-2" value="{{ $student->last_name }}" required>
-                                                <input name="contact_number" class="form-control mb-2" value="{{ $student->contact_number }}" required>
-                                                <input name="id_number" class="form-control mb-2" value="{{ $student->id_number }}" required>
                                                 <div class="mb-2">
-                                                    <label class="form-label">Year Level</label>
-                                                    <select name="year_level" class="form-select" required>
+                                                    <label class="form-label fw-semibold">First Name</label>
+                                                    <input name="first_name" class="form-control @error('first_name') is-invalid @enderror"
+                                                        value="{{ old('first_name', $student->first_name) }}" required>
+                                                    @if(session('editing_student_id') == $student->id)
+                                                        @error('first_name')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    @endif
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label fw-semibold">Last Name</label>
+                                                    <input name="last_name" class="form-control @error('last_name') is-invalid @enderror"
+                                                        value="{{ old('last_name', $student->last_name) }}" required>
+                                                    @if(session('editing_student_id') == $student->id)
+                                                        @error('last_name')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    @endif
+                                                </div>
+
+                                                <div class="mb-2">
+                                                    <label class="form-label fw-semibold">Contact Number</label>
+                                                    <input name="contact_number" class="form-control @error('contact_number') is-invalid @enderror"
+                                                        value="{{ old('contact_number', $student->contact_number) }}" required>
+                                                    @if(session('editing_student_id') == $student->id)
+                                                        @error('contact_number')
+                                                            <div class="invalid-feedback">Follow the format 09*********</div>
+                                                        @enderror
+                                                    @endif
+                                                </div>
+
+                                                <div class="mb-2">
+                                                    <label class="form-label fw-semibold">ID Number</label>
+                                                    <input name="id_number" class="form-control" value="{{ $student->id_number }}" readonly>
+                                                </div>
+
+                                                <div class="mb-2">
+                                                    <label class="form-label fw-semibold">Year Level</label>
+                                                    <select name="year_level" class="form-select @error('year_level') is-invalid @enderror" required>
                                                         @foreach (range(1, 4) as $level)
-                                                            <option value="{{ $level }}" {{ $student->year_level == $level ? 'selected' : '' }}>
+                                                            <option value="{{ $level }}" {{ old('year_level', $student->year_level) == $level ? 'selected' : '' }}>
                                                                 {{ $level }}{{ ['st','nd','rd','th'][$level-1] ?? 'th' }} Year
                                                             </option>
                                                         @endforeach
                                                     </select>
+                                                    @if(session('editing_student_id') == $student->id)
+                                                        @error('year_level')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    @endif
                                                 </div>
-                                                <input name="section" class="form-control mb-2" value="{{ $student->section }}" required>
+
+                                                <div class="mb-2">
+                                                    <label class="form-label fw-semibold">Section</label>
+                                                    <input name="section" class="form-control @error('section') is-invalid @enderror"
+                                                        value="{{ old('section', $student->section) }}" required>
+                                                    @if(session('editing_student_id') == $student->id)
+                                                        @error('section')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    @endif
+                                                </div>
                                             </div>
 
                                             <div class="modal-footer">
@@ -130,6 +194,7 @@
                                     </form>
                                 </div>
                             </div>
+
                             <!-- Transfer Modal -->
                             <div class="modal fade" id="transferModal{{ $student->id }}" tabindex="-1">
                                 <div class="modal-dialog">
@@ -262,5 +327,13 @@
                 });
             }, 5000); // Close after 5 seconds
         </script>
+        @if ($errors->any() && session('editing_student_id'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var editModal = new bootstrap.Modal(document.getElementById('editStudentModal{{ session('editing_student_id') }}'));
+                editModal.show();
+            });
+        </script>
+        @endif
     </body>
 </html>
