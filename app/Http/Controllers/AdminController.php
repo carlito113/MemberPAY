@@ -196,43 +196,43 @@ class AdminController extends Controller
 
     // Store semester - this is the MODAL currently at ADDPAYMENT.BLADE
     public function semStore(Request $request)
-{
-    $request->validate([
-        'semester' => 'required|string',
-        'academic_year_from' => 'required|numeric|min:2000|max:2100',
-        'academic_year_to' => 'required|numeric|min:2000|max:2100',
-    ]);
-
-    // Combine academic year fields into one string
-    $academicYear = $request->academic_year_from . '-' . $request->academic_year_to;
-
-    // Check for duplicate semester and academic year
-    $exists = Semester::where('semester', $request->semester)
-    ->where('academic_year', $academicYear)
-    ->exists();
-
-    // If it exists, redirect back with an error message
-    if ($exists) {
-        return redirect()->back()
-            ->withErrors(['duplicate' => 'This semester and academic year already exist.'])
-            ->withInput();
-    }
-
-    // Create semester
-    $semester = Semester::create([
-        'admin_id' => auth()->id(),
-        'semester' => $request->semester,
-        'academic_year' => $academicYear,
-    ]);
-
-    // Attach all students with default "Unpaid" payment_status
-    $students = Student::all();
-    foreach ($students as $student) {
-    $semester->students()->attach($student->id, ['payment_status' => 'Unpaid']);
-    }
-        return redirect()->back()->with('success', 'Semester created and students initialized with unpaid status.');
+    {
+        $request->validate([
+            'semester' => 'required|string',
+            'academic_year_from' => 'required|numeric|min:2000|max:2100',
+            'academic_year_to' => 'required|numeric|min:2000|max:2100',
+        ]);
+    
+        $academicYear = $request->academic_year_from . '-' . $request->academic_year_to;
+    
+        // Check for duplicate within the same admin only
+        $exists = Semester::where('admin_id', auth()->id())
+            ->where('semester', $request->semester)
+            ->where('academic_year', $academicYear)
+            ->exists();
+    
+        if ($exists) {
+            return redirect()->back()
+                ->withErrors(['duplicate' => 'This semester and academic year already exist for your organization.'])
+                ->withInput();
         }
-
+    
+        // Create the semester
+        $semester = Semester::create([
+            'admin_id' => auth()->id(),
+            'semester' => $request->semester,
+            'academic_year' => $academicYear,
+        ]);
+    
+        // Attach all students (if they belong to this admin, filter here)
+        $students = Student::all(); // Optionally filter by admin_id
+        foreach ($students as $student) {
+            $semester->students()->attach($student->id, ['payment_status' => 'Unpaid']);
+        }
+    
+        return redirect()->back()->with('success', 'Semester created and students initialized with unpaid status.');
+    }
+    
 
     // Set semester - this is where the semester is SELECTED AND REDIRECTED to the semester record page
     public function setSemester($id)
@@ -472,6 +472,9 @@ class AdminController extends Controller
     return redirect()->back()->with('success', 'Semester permanently deleted.');
 }
 
+  
+
+  
     
 
     // Update admin

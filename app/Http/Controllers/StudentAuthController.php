@@ -13,4 +13,18 @@ class StudentAuthController extends Controller
 
         return view('student.dashboard', compact('student'));
     }
+
+    public function viewCardOne()
+    {
+        $student = auth()->user(); // assuming student is logged in
+        return view('student.organizationcard', compact('student'));
+    }
+
+    public function viewCardTwo()
+    {
+        $student = auth()->user(); // assuming student is logged in
+        return view('student.yearorganizationcard', compact('student'));
+    }
+
 }
+

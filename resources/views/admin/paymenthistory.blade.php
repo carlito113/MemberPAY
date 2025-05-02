@@ -22,31 +22,29 @@
             <br>
 
             <div class="row">
-    @if($semesters->isNotEmpty())
-        @foreach ($semesters as $sem)
-            <div class="col-12 mb-3 position-relative">
-                <a href="{{ route('admin.paymenthistorylist', ['semester_id' => $sem->id]) }}" class="text-decoration-none text-dark d-block">
-                    <div class="card-custom shadow-sm d-flex justify-content-between align-items-center">
-                        <div class="line-separator"></div>
-                        <div class="d-flex align-items-center gap-3">
-                            <div></div>
-                            <div>
-                                <h3 class="fw-bold org-title mb-1">
-                                    {{ strtoupper($sem->semester) }} COLLECTION - Academic Year: {{ $sem->academic_year }}
-                                </h3>
-                            </div>
+                @if($semesters->isNotEmpty())
+                    @foreach ($semesters as $sem)
+                        <div class="col-12 mb-3 position-relative">
+                            <a href="{{ route('admin.paymenthistorylist', ['semester_id' => $sem->id]) }}" class="text-decoration-none text-dark d-block">
+                                <div class="card-custom shadow-sm d-flex justify-content-between align-items-center">
+                                    <div class="line-separator"></div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div></div>
+                                        <div>
+                                            <h3 class="fw-bold org-title mb-1">
+                                                {{ strtoupper($sem->semester) }} COLLECTION - Academic Year: {{ $sem->academic_year }}
+                                            </h3>
+                                        </div>
+                                    </div>
+                                
+                                </div>
+                            </a>
                         </div>
-                       
-                    </div>
-                </a>
+                    @endforeach
+                @else
+                    <p>No semester records found.</p>
+                @endif
             </div>
-        @endforeach
-    @else
-        <p>No semester records found.</p>
-    @endif
-</div>
-
-
         </div>
     </div>
 

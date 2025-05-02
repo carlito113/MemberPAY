@@ -25,7 +25,7 @@ Route::middleware(['auth:admin'])->group(function () {
     // User Management for Super Admin
     Route::get('/superadmin/usermanagement', [AdminController::class, 'userManagementSuperAdmin'])->name('usermanagement.dashboard');
 
-Route::patch('/admins/{id}', [AdminController::class, 'updateAdminSuperadmin'])->name('admins.update');
+    Route::patch('/admins/{id}', [AdminController::class, 'updateAdminSuperadmin'])->name('admins.update');
 
     Route::get('/admin/payment', [AdminController::class, 'adminPayment'])->name('admin.addpayment');
 
@@ -57,11 +57,17 @@ Route::patch('/admins/{id}', [AdminController::class, 'updateAdminSuperadmin'])-
     
     Route::post('/admin/remove-semester', [AdminController::class, 'removeSemester'])->name('admin.removeSemester');
 
+  
 
 });
 
 Route::middleware(['auth:student'])->group(function () {
     Route::get('/student/dashboard', [StudentAuthController::class, 'dashboard'])->name('student.dashboard');
+
+    Route::get('/student/organization', [StudentAuthController::class, 'viewCardOne'])->name('student.organizationcard');
+
+    Route::get('/student/yearorganization', [StudentAuthController::class, 'viewCardTwo'])->name('student.yearorganizationcard');
+
 });
 
 // Route::middleware('auth:admin')->group(function () {
