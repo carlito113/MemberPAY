@@ -70,6 +70,8 @@ Route::middleware(['auth:student'])->group(function () {
 
     Route::get('/student/yearorganization', [StudentAuthController::class, 'viewCardTwo'])->name('student.yearorganizationcard');
 
+    
+
     Route::get('/student/profile', [StudentAuthController::class, 'studentProfile'])->name('student.profile');
 
 

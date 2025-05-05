@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('students', function (Blueprint $table) {
-          
-            $table->string('payment_status')->default('Unpaid')->after('section');
-
+        Schema::table('admins', function (Blueprint $table) {
+            $table->string('image')->nullable()->after('name');
         });
+        
     }
 
     /**
@@ -23,8 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('students', function (Blueprint $table) {
-            $table->dropColumn('payment_status');
+        Schema::table('admins', function (Blueprint $table) {
+            //
         });
     }
 };

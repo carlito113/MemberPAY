@@ -29,55 +29,53 @@
             <br>
 
             <div class="row">
-                <h2>Sophomore Class Organization</h2>
-                <div class="col-12 mb-3 position-relative">
-                    <a href="{{ route('student.organizationcard') }}" class="text-decoration-none text-dark d-block">
-                  
-                        <div class="card-student shadow-sm ">
-                            <h4>School Year: 2024-2025</h4>
-                            <div class="align-items-center gap-3">
-                                
-                                <div class="row">
-                                    <div class="col-12 mb-3 position-relative">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <h5 class="col-6 m-0">Class Treasurer: John Carl Uribe</h5>
-                                                    <h5 class="col-6 m-0">Date of Transaction: 11/19/2024</h5>
-                                                </div>
-                                                <hr class="my-2">
-                                                <div class="row">
-                                                    <h5 class="col-6 m-0">First Semester Payment</h5>
-                                                    <h5 class="col-6 m-0">Status: Paid</h5>
-                                                </div>
+    @php
+        $groupedSemesters = $semesters->groupBy(function ($sem) {
+            return $sem->admin->username ?? 'Unknown Organization';
+        });
+    @endphp
 
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 mb-3 position-relative">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <h5 class="col-6 m-0">Class Treasurer: John Carl Uribe</h5>
-                                                    <h5 class="col-6 m-0">Date of Transaction: 11/19/2024</h5>
-                                                </div>
-                                                <hr class="my-2">
-                                                <div class="row">
-                                                    <h5 class="col-6 m-0">First Semester Payment</h5>
-                                                    <h5 class="col-6 m-0">Status: Paid</h5>
-                                                </div>
+    @forelse ($groupedSemesters as $orgName => $orgSemesters)
+        <div class="col-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{{ $orgName }}</h4>
+                </div>
+                <div class="card-body">
+                    @php
+                        $groupedByYear = $orgSemesters->groupBy('academic_year');
+                    @endphp
 
-                                            </div>
-                                        </div>
-                                    </div>
-                                   
-                                </div>
-                            </div>
-                        </div>    
-                    </a>
+                    @foreach ($groupedByYear as $schoolYear => $semestersInYear)
+                        <div class="border rounded p-3 mb-4 bg-light">
+                            <h5 class="text-primary mb-3">School Year: {{ $schoolYear }}</h5>
+                            
+                            @foreach ($semestersInYear as $semester)
+    @if (!empty($semester->pivot->admin_name))
+        <div class="mb-3">
+            <div class="row">
+                <h6 class="col-md-6 m-0">Semester: {{ $semester->semester }}</h6>
+                <h6 class="col-md-6 m-0">Status: {{ ucfirst($semester->pivot->payment_status) }}</h6>
+            </div>
+            <div class="row mt-2">
+                <p class="col-md-6 m-0">Date of Transaction: {{ \Carbon\Carbon::parse($semester->pivot->updated_at)->format('m/d/Y') }}</p>
+                <h6 class="col-md-6 m-0">Treasurer: {{ $semester->pivot->admin_name }}</h6>
+            </div>
+        </div>
+        <hr>
+    @endif
+@endforeach
+
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
+    @empty
+        <p class="text-muted">No payment records found.</p>
+    @endforelse
+</div>
+
     </div>
     
 

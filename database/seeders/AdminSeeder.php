@@ -17,8 +17,8 @@ class AdminSeeder extends Seeder
         // List of organizations
         $organizations = [
             'APSS', 'AVED', 'BACOMMUNITY', 'BPED MOVERS', 'COFED', 'DIGITS',
-            'English Circle', 'EA', 'HRC', 'JSWAP', 'KMF', 'LNU MSS', 'INTERSOC',
-            'TC', 'TLEG TLE', 'SQU', 'ECEO', 'FCO', 'SCO', 'JCO', 'SENCO'
+            'EC', 'EA', 'HRC', 'JSWAP', 'KMF', 'LNU MSS', 'INTERSOC',
+            'TC', 'TLEG', 'SQU', 'ECEO', 'FCO', 'SCO', 'JCO', 'SENCO'
         ];
 
         // List of sample names
@@ -32,17 +32,23 @@ class AdminSeeder extends Seeder
 
         // Seed admins
         foreach ($organizations as $index => $org) {
-            $password = strtolower($org) . '2025'; // example: digits2025
+            $password = strtolower($org) . '2025'; // e.g., digits2025
+        
+            // Slugify the organization name for image file naming
+            $imageFileName = strtoupper(str_replace(' ', '_', $org)) . '.png'; // e.g., bacommunity.png
+        
             Admin::firstOrCreate(
                 ['username' => $org],
                 [
                     'password' => Hash::make($password),
                     'plain_password' => $password,
                     'role' => 'admin',
-                    'name' => $names[$index % count($names)], // Rotate names
+                    'name' => $names[$index % count($names)],
+                    'image' => 'images/OrganizationLogo/' . $imageFileName,
                 ]
             );
         }
+        
 
         // Superadmin
         Admin::firstOrCreate(

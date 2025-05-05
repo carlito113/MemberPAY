@@ -27,6 +27,11 @@ th {
     </style>
 </head>
 <body>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <img src="{{ public_path('OrganizationLogo/' . strtoupper($organization) . '.png') }}" alt="Org Logo" height="60">
+        <img src="{{ public_path('OrganizationLogo/lnu.png') }}" alt="LNU Logo" height="60">
+    </div>
+
     <div class="header">
         <h1>{{ $organization }} Organization</h1>
         <h2>{{ $currentSemester->semester }} - Academic Year: {{ $currentSemester->academic_year }}</h2>
@@ -36,6 +41,7 @@ th {
             <h3>All Sections</h3>
         @endif
     </div>
+
 
     <table>
         <thead>

@@ -16,9 +16,12 @@
         <!-- Main content -->
         <div class="main-content flex-grow-1 p-4">
             <h2 class="fw-bold text-warning mb-4">👋 Hello, Super Admin!</h2>
+            
 
             <div class="row">
             @foreach ($organizations as $org)
+            <p>{{ json_encode($org->semesters) }}</p>
+
 <div class="col-12 mb-3">
     <div class="card-custom shadow-sm d-flex justify-content-between align-items-center">
         <div class="line-separator"></div>

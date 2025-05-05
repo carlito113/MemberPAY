@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
@@ -82,6 +84,26 @@
                 </table>
             </div>
 
+            <div class="card mt-4 h-50">
+                <div class="card-body">
+                    <h4 class="card-title">Paid Students by Semester</h4>
+                    <div class="position-relative" style="height: 300px;">
+                        <canvas id="paidChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <hr>
+
+            <!-- <div class="card mt-4 h-50">
+                <div class="card-body">
+                    <h4 class="card-title">Membership Payment Overview</h4>
+                    <div class="position-relative mt-4" style="height: 300px;">
+                        <canvas id="paymentChart"></canvas>
+                    </div>
+                </div>
+            </div> -->
+
+
         </div>
 
     </div>
@@ -112,5 +134,93 @@
         });
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('paymentChart').getContext('2d');
+        const paymentChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Paid', 'Unpaid'],
+                datasets: [{
+                    label: 'Members',
+                    data: [{{ $totalPaid }}, {{ $totalUnpaid }}],
+                    backgroundColor: ['#28a745', '#dc3545'],
+                    borderColor: ['#ffffff', '#ffffff'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Payment Distribution'
+                    }
+                }
+            }
+        });
+    });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('paidChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($labels) !!},
+            datasets: [
+                {
+                    label: 'Paid',
+                    data: {!! json_encode($paidData) !!},
+                    backgroundColor: '#0d6efd',
+                    stack: 'members'
+                },
+                {
+                    label: 'Unpaid',
+                    data: {!! json_encode($totalData->map(fn($total, $i) => $total - $paidData[$i])) !!},
+                    backgroundColor: '#b0c4de',
+                    stack: 'members'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Paid vs Total Students per Semester'
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Semesters'
+                    }
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Students'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+
 
 </html>

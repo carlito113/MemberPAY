@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Admin;
 use App\Models\Semester;
@@ -18,7 +19,8 @@ use function Laravel\Prompts\alert;
 class AdminController extends Controller
 {
     // Admin dashboard
-    public function dashboard()
+ 
+public function dashboard()
 {
     $admin = Auth::guard('admin')->user();
     $organization = $admin->username;
@@ -35,10 +37,12 @@ class AdminController extends Controller
             'totalPaid' => 0,
             'totalUnpaid' => 0,
             'recentTransactions' => [],
+            'labels' => [],
+            'paidData' => [],
         ]);
     }
 
-    // Fetch total members for the current semester
+    // Fetch total members
     $totalMembers = Student::where('organization', $organization)
         ->join('semester_student', function ($join) use ($currentSemester) {
             $join->on('students.id', '=', 'semester_student.student_id')
@@ -46,7 +50,6 @@ class AdminController extends Controller
         })
         ->count();
 
-    // Fetch total paid members for the current semester
     $totalPaid = Student::where('organization', $organization)
         ->join('semester_student', function ($join) use ($currentSemester) {
             $join->on('students.id', '=', 'semester_student.student_id')
@@ -55,10 +58,8 @@ class AdminController extends Controller
         })
         ->count();
 
-    // Fetch total unpaid members for the current semester
     $totalUnpaid = $totalMembers - $totalPaid;
 
-    // Fetch recent payment transactions for the current semester
     $recentTransactions = Student::where('organization', $organization)
         ->join('semester_student', function ($join) use ($currentSemester) {
             $join->on('students.id', '=', 'semester_student.student_id')
@@ -69,13 +70,38 @@ class AdminController extends Controller
         ->limit(5)
         ->get();
 
-    return view('admin.dashboard', [
-        'organization' => $organization,
-        'totalMembers' => $totalMembers,
-        'totalPaid' => $totalPaid,
-        'totalUnpaid' => $totalUnpaid,
-        'recentTransactions' => $recentTransactions,
-    ]);
+    // 👉 Chart data: paid students per semester
+    $paymentStats = DB::table('semesters')
+        ->join('semester_student', 'semesters.id', '=', 'semester_student.semester_id')
+        ->join('students', 'students.id', '=', 'semester_student.student_id')
+        ->select(
+            'semesters.created_at',
+            DB::raw("CONCAT(semesters.semester, ' AY ', semesters.academic_year) AS sem_label"),
+            DB::raw('COUNT(*) as total_students'),
+            DB::raw('COUNT(CASE WHEN semester_student.payment_status = "Paid" THEN 1 END) as total_paid')
+        )
+        ->where('semesters.admin_id', $admin->id)
+        ->whereRaw('LOWER(TRIM(students.organization)) = ?', [strtolower(trim($organization))])
+        ->groupBy('sem_label', 'semesters.created_at')
+        ->orderBy('semesters.created_at', 'asc')
+        ->get();
+
+        $labels = $paymentStats->pluck('sem_label');
+        $paidData = $paymentStats->pluck('total_paid');
+        $totalData = $paymentStats->pluck('total_students');
+        
+
+        return view('admin.dashboard', [
+            'organization' => $organization,
+            'totalMembers' => $totalMembers,
+            'totalPaid' => $totalPaid,
+            'totalUnpaid' => $totalUnpaid,
+            'recentTransactions' => $recentTransactions,
+            'labels' => $labels,
+            'paidData' => $paidData,
+            'totalData' => $totalData,
+        ]);
+        
 }
 
 
@@ -185,20 +211,30 @@ class AdminController extends Controller
     // Super Admin dashboard
     public function superAdminDashboard()
     {
-        // Fetch all admins with their total members (students) via semesters
-        $organizations = Admin::withCount(['semesters as students_count' => function ($query) {
-            $query->join('semester_student', 'semesters.id', '=', 'semester_student.semester_id')
-                  ->join('students', 'semester_student.student_id', '=', 'students.id')
-                  ->where('semester_student.semester_id', function ($subQuery) {
-                      $subQuery->select('id')
-                               ->from('semesters')
-                               ->orderBy('created_at', 'desc')
-                               ->limit(1); // Get the latest semester
-                  });
-        }])->get();
+        $organizations = Admin::all()->map(function ($admin) {
+            $latestSemester = Semester::where('admin_id', $admin->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
     
+            $studentsCount = 0;
+    
+            if ($latestSemester) {
+                $studentsCount = \DB::table('semester_student')
+                    ->join('students', 'semester_student.student_id', '=', 'students.id')
+                    ->where('semester_student.semester_id', $latestSemester->id)
+                    ->whereRaw('LOWER(students.organization) = LOWER(?)', [$admin->username])
+                    ->count();
+            }
+    
+            $admin->students_count = $studentsCount;
+            return $admin;
+        });
+    
+        
         return view('superadmin.dashboard', compact('organizations'));
     }
+    
+
 
     // User management for super admin
     public function userManagementSuperAdmin()

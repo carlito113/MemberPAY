@@ -10,29 +10,44 @@ class StudentSeeder extends Seeder
     public function run(): void
     {
         $organizations = [
-            'DIGITS' => ['AI11', 'AI12', 'AI21', 'AI22', 'AI31', 'AI32', 'AI41', 'AI42'],
-            'JCO'    => ['JC11', 'JC12', 'JC21', 'JC22', 'JC31', 'JC32', 'JC41', 'JC42'],
-            'SENCO'  => ['SE11', 'SE12', 'SE21', 'SE22', 'SE31', 'SE32', 'SE41', 'SE42'],
-            'APSS'   => ['AP11', 'AP12', 'AP21', 'AP22', 'AP31', 'AP32', 'AP41', 'AP42'],
+            'APSS', 'AVED', 'BACOMMUNITY', 'BPED MOVERS', 'COFED', 'DIGITS',
+            'EC', 'EA', 'HRC', 'JSWAP', 'KMF', 'LNU MSS', 'INTERSOC',
+            'TC', 'TLEG', 'SQU', 'ECEO', 'FCO', 'SCO', 'JCO', 'SENCO'
         ];
 
-        $firstNames = ['John', 'Jane', 'Michael', 'Emily', 'Chris', 'Sarah', 'David', 'Sophia'];
-        $lastNames  = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+        // More diverse names: singers, anime characters, cartoon characters
+        $firstNames = [
+            'Naruto', 'Sasuke', 'Hinata', 'Mikasa', 'Eren', 'Goku', 'Vegeta', 'Ash', 'Pikachu', 'SpongeBob',
+            'Patrick', 'Aang', 'Zuko', 'Korra', 'Elsa', 'Anna', 'Rapunzel', 'Ariel', 'Moana', 'Simba',
+            'Ariana', 'Drake', 'Taylor', 'Beyoncé', 'Bruno', 'Billie', 'Harry', 'Olivia', 'The Weeknd', 'SZA'
+        ];
+
+        $lastNames = [
+            'Uzumaki', 'Uchiha', 'Hyuga', 'Ackerman', 'Yeager', 'Son', 'Briefs', 'Ketchum', 'SquarePants', 'Star',
+            'Beifong', 'Agni', 'Water', 'Ice', 'Fire', 'Light', 'Dark', 'Storm', 'Sea', 'Lion',
+            'Grande', 'Graham', 'Swift', 'Knowles', 'Mars', 'Eilish', 'Styles', 'Rodrigo', 'Tesfaye', 'Rowe'
+        ];
 
         $idNumber = 2201431;
 
-        foreach ($organizations as $org => $sections) {
-            foreach ($sections as $section) {
-                $yearLevel = substr($section, 2, 1); // e.g., AI11 → 1st year
+        foreach ($organizations as $org) {
+            $prefix = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $org), 0, 2)); // First 2 letters only
+            $sections = [];
+            for ($j = 1; $j <= 5; $j++) {
+                $sections[] = $prefix . "1$j"; // e.g., AP11 to AP15
+                $sections[] = $prefix . "2$j"; // e.g., AP21 to AP25
+            }
 
-                // 🧑 Add one student per section
+            for ($i = 0; $i < 100; $i++) {
                 $firstName = $firstNames[array_rand($firstNames)];
                 $lastName  = $lastNames[array_rand($lastNames)];
+                $section   = $sections[array_rand($sections)];
+                $yearLevel = substr($section, 2, 1);
 
                 Student::create([
-                    'id_number'    => $idNumber++, // Manual increment
-                    'first_name'         => "$firstName",
-                    'last_name'          => "$lastName",
+                    'id_number'    => $idNumber++,
+                    'first_name'   => $firstName,
+                    'last_name'    => $lastName,
                     'year_level'   => $yearLevel,
                     'section'      => $section,
                     'organization' => $org,

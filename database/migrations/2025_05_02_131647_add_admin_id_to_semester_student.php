@@ -12,9 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('semester_student', function (Blueprint $table) {
-
             $table->foreignId('admin_id')->nullable()->constrained('admins')->nullOnDelete();
-            
         });
         
     }
