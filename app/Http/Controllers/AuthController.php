@@ -40,7 +40,8 @@ class AuthController extends Controller
         $student = Student::where('id_number', $validated['username'])->first();
         if ($student){
             if ($student->status !== 'active') {
-                return back()->withErrors(['login' => 'Your account is not active.']);
+                return back()->withErrors(['login' => 'Oops! Your account is not active. Please contact the ' . $student->organization . ' Treasurer for assistance.']);
+
             }
         }
         if ($student && strtolower(trim($student->last_name)) === strtolower(trim($validated['password']))) {

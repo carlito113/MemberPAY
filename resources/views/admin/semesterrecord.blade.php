@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    <link href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/table.css') }}">
 </head>
 <body>
     @include('admin.navadmin')
@@ -28,8 +30,8 @@
                 </div>
                     </div>
                 </div>
-                
-                
+
+
                 <div class="line"></div>
                 @if ($currentSemester)
                 <h1 class="fw-bold text-warning mb-4">
@@ -71,32 +73,39 @@
                 }
             @endphp
 
-            <!-- Filter Form -->
-            <form method="GET" action="{{ route('admin.semesterrecord') }}" class="mb-4">
-                <select name="section" class="form-select" id="sectionDropdown" style="max-width: 200px; display: inline-block;" onchange="this.form.submit()">
-                    <option value="">Show All</option>
-                    @foreach ($groupedSections as $year => $sections)
-                        <optgroup label="{{ ordinal($year) }} Year">
+            <div class="d-flex justify-content-between-table align-items-center mb-3 flex-wrap gap-2">
+                <!-- Filter Dropdown -->
+                <form method="GET" action="{{ route('admin.members') }}">
+                    <select name="filter" class="form-select" style="min-width: 200px;" onchange="this.form.submit()">
+                        <option value="">Show All</option>
+                        @foreach ($groupedSections as $year => $sections)
+                            <option value="year_{{ $year }}"
+                                {{ request('filter') == 'year_'.$year ? 'selected' : '' }}>
+                                {{ ordinal($year) }} Year
+                            </option>
                             @foreach ($sections as $sec)
-                                <option value="{{ $sec }}" {{ $section == $sec ? 'selected' : '' }}>
+                                <option value="section_{{ $sec }}"
+                                    {{ request('filter') == 'section_'.$sec ? 'selected' : '' }}>
                                     {{ ordinal((int) substr($sec, 2, 1)) }} Year - {{ $sec }}
                                 </option>
                             @endforeach
-                        </optgroup>
-                    @endforeach
-                </select>
-            </form>
-            
+                        @endforeach
+                    </select>
+                </form>
+
+                <!-- DataTable Search bar is automatically included -->
+            </div>
+
 
             <!-- Students Table -->
-            <table class="table table-striped">
+            <table id="studentsTable" class="table table-striped table-bordered table-hover align-middle">
                 <thead>
                     <tr>
                         <th>Student Id</th>
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Payment Status</th>
-                        
+
                     </tr>
                 </thead>
                 <tbody>
@@ -128,6 +137,10 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables Bootstrap 5 JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const toggleBtn = document.querySelector('.toggle-btn');
@@ -173,6 +186,26 @@
                     // Submit the form
                     form.submit();
                 });
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            const table = $('#studentsTable').DataTable({
+                paging: true,
+                ordering: true,
+                searching: true,
+                lengthChange: false,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                columnDefs: [
+                    { orderable: false, targets: 3 } // Disable sorting on "Action" column
+                ],
+                initComplete: function () {
+                    const searchBox = $('#studentsTable_filter');
+                    searchBox.addClass('ms-auto'); // Optional: aligns to the right
+                    $('.d-flex.justify-content-between-table').append(searchBox);
+                }
             });
         });
     </script>

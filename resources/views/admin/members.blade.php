@@ -8,8 +8,15 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+        <link href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
         <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
         <link rel="stylesheet" href="{{ asset('css/sidenav.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/table.css') }}">
+
+
+
+
+
     </head>
     <body>
         <div class="d-flex">
@@ -54,26 +61,30 @@
                     }
                 @endphp
                 <!-- Filter Form -->
-                <form method="GET" action="{{ route('admin.members') }}" class="mb-4">
-                    <select name="filter" class="form-select" style="max-width: 300px; display: inline-block;" onchange="this.form.submit()">
-                        <option value="">Show All</option>
-                        @foreach ($groupedSections as $year => $sections)
-                            <option value="year_{{ $year }}"
-                                style="font-weight: bold;"
-                                {{ request('filter') == 'year_'.$year ? 'selected' : '' }}>
-                                {{ ordinal($year) }} Year
-                            </option>
-                            @foreach ($sections as $sec)
-                                <option value="section_{{ $sec }}"
-                                    {{ request('filter') == 'section_'.$sec ? 'selected' : '' }}>
-                                    {{ ordinal((int) substr($sec, 2, 1)) }} Year - {{ $sec }}
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <!-- Filter Dropdown -->
+                    <form method="GET" action="{{ route('admin.members') }}">
+                        <select name="filter" class="form-select" style="min-width: 200px;" onchange="this.form.submit()">
+                            <option value="">Show All</option>
+                            @foreach ($groupedSections as $year => $sections)
+                                <option value="year_{{ $year }}"
+                                    {{ request('filter') == 'year_'.$year ? 'selected' : '' }}>
+                                    {{ ordinal($year) }} Year
                                 </option>
+                                @foreach ($sections as $sec)
+                                    <option value="section_{{ $sec }}"
+                                        {{ request('filter') == 'section_'.$sec ? 'selected' : '' }}>
+                                        {{ ordinal((int) substr($sec, 2, 1)) }} Year - {{ $sec }}
+                                    </option>
+                                @endforeach
                             @endforeach
-                        @endforeach
-                    </select>
-                </form>
+                        </select>
+                    </form>
+
+                    <!-- DataTable Search bar is automatically included -->
+                </div>
                 <!-- Students Table -->
-                <table class="table table-striped">
+                <table id="studentsTable" class="table table-striped table-bordered table-hover align-middle">
                     <thead>
                         <tr>
                             <th>Student Id</th>
@@ -83,7 +94,7 @@
                             <th>Section</th>
                             <th>Status</th>
                             <th>Action</th>
-                            
+
                         </tr>
                     </thead>
                     <tbody>
@@ -94,18 +105,26 @@
                                 <td>{{ $student->contact_number }}</td>
                                 <td> Year {{ $student->year_level }}</td>
                                 <td>{{ $student->section }}</td>
-                                <td>{{$student->status}}</td>
-
+                                {{-- <td>{{$student->status}}</td> --}}
                                 <td>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ $student->id }}">Edit</button>
-                                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#transferModal{{ $student->id }}">Transfer</button>
-                                    <form method="POST" action="{{ route('admin.students.toggleStatus', $student->id) }}" class="d-inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn {{ $student->status === 'active' ? 'btn-danger' : 'btn-success' }}">
-                                            {{ $student->status === 'active' ? 'Deactivate' : 'Activate' }}
-                                        </button>
-                                    </form>
+                                    @if ($student->status === 'active')
+                                        <span class="badge bg-success">Active</span>
+                                    @else
+                                        <span class="badge bg-danger">Inactive</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ $student->id }}">Edit</button>
+                                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#transferModal{{ $student->id }}">Transfer</button>
+                                        <form method="POST" action="{{ route('admin.students.toggleStatus', $student->id) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn btn-sm {{ $student->status === 'active' ? 'btn-danger' : 'btn-success' }}">
+                                                {{ $student->status === 'active' ? 'Deactivate' : 'Activate' }}
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
 
 
@@ -287,6 +306,11 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- DataTables Bootstrap 5 JS -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const toggleBtn = document.querySelector('.toggle-btn');
@@ -326,6 +350,26 @@
                     new bootstrap.Alert(alert).close();
                 });
             }, 5000); // Close after 5 seconds
+        </script>
+        <script>
+            $(document).ready(function () {
+                const table = $('#studentsTable').DataTable({
+                    paging: true,
+                    ordering: true,
+                    searching: true,
+                    lengthChange: false,
+                    pageLength: 10,
+                    lengthMenu: [10, 25, 50, 100],
+                    columnDefs: [
+                        { orderable: false, targets: 6 } // Disable sorting on "Action" column
+                    ],
+                    initComplete: function () {
+                        const searchBox = $('#studentsTable_filter');
+                        searchBox.addClass('ms-auto'); // Optional: aligns to the right
+                        $('.d-flex.justify-content-between').append(searchBox);
+                    }
+                });
+            });
         </script>
         @if ($errors->any() && session('editing_student_id'))
         <script>

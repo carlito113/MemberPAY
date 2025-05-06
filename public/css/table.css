@@ -1,0 +1,27 @@
+/* admin.css */
+
+#studentsTable.dataTable {
+    background-color: #ffffff !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Round table cells */
+#studentsTable.dataTable td,
+#studentsTable.dataTable th {
+    padding: 12px !important;
+    vertical-align: middle !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+/* Header style */
+#studentsTable thead {
+    background-color: #f8f9fa !important;
+    color: #333 !important;
+}
+
+/* Highlight hovered row */
+#studentsTable tbody tr:hover {
+    background-color: #f1f3f5 !important;
+}

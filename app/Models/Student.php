@@ -35,14 +35,14 @@ class Student extends Authenticatable
                 ->withTimestamps();
 }
 
-    
-public function organization()
-{
-    return $this->belongsTo(Organization::class);
-}
+
+// public function organization()
+// {
+//     return $this->belongsTo(Organization::class);
+// }
 
 
 
-    
+
 
 }
