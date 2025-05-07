@@ -2,7 +2,7 @@ body {
     background-color: #f8f9fa;
     font-family: 'Poppins';
 
-    
+
 }
 
 html, body {
@@ -45,13 +45,42 @@ html, body {
 .col:nth-child(1) .card {
     background-color: #34c039; /* example style for the first card */
 }
-  
+
 .col:nth-child(2) .card {
     background-color: #2437ca; /* second card */
   }
-  
+
 .col:nth-child(3) .card {
     background-color: #d32626; /* third card */
 }
+
+/* admin.css */
+
+#studentsTable.dataTable {
+    background-color: #ffffff !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Round table cells */
+#studentsTable.dataTable td,
+#studentsTable.dataTable th {
+    padding: 12px !important;
+    vertical-align: middle !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+/* Header style */
+#studentsTable thead {
+    background-color: #f8f9fa !important;
+    color: #333 !important;
+}
+
+/* Highlight hovered row */
+#studentsTable tbody tr:hover {
+    background-color: #f1f3f5 !important;
+}
+
 
 

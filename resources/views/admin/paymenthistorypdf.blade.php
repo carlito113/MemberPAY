@@ -27,9 +27,9 @@ th {
     </style>
 </head>
 <body>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <img src="{{ public_path('OrganizationLogo/' . strtoupper($organization) . '.png') }}" alt="Org Logo" height="60">
-        <img src="{{ public_path('OrganizationLogo/lnu.png') }}" alt="LNU Logo" height="60">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <img src="{{ public_path('OrganizationLogo/' . strtoupper($organization) . '.png') }}" alt="Org Logo" height="70" class="img-fluid">
+        <img src="{{ public_path('OrganizationLogo/lnu.png') }}" alt="LNU Logo" height="70" class="img-fluid">
     </div>
 
     <div class="header">

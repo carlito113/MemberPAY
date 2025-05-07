@@ -27,22 +27,6 @@ class StudentController extends Controller
         return back()->with('success', 'Student added successfully.');
     }
 
-    // Update student
-    // public function update(Request $request, Student $student)
-    // {
-    //     // dd($request->all());
-    //     $request->validate([
-    //         'first_name' => 'required|string',
-    //         'last_name' => 'required|string',
-    //         'contact_number' => ['required', 'regex:/^09\d{9}$/'],
-    //         'year_level' => 'required|integer|between:1,4',
-    //         'section' => 'required|string',
-    //     ]);
-
-    //     $student->update($request->all());
-
-    //     return back()->with('success', 'Student updated successfully.');
-    // }
         public function update(Request $request, Student $student)
         {
             $validator = Validator::make($request->all(), [
@@ -79,5 +63,5 @@ class StudentController extends Controller
     }
 
 
-    
+
 }

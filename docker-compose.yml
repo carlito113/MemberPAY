@@ -51,7 +51,7 @@ networks:
   laravel_network:
     driver: bridge
     name: laravel_network
-    external: true
+    # external: true
 volumes:
     db_data:
         # driver: local

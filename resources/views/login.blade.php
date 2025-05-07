@@ -69,9 +69,7 @@
                 <div class="toggle-box">
                     <div class="toggle-panel toggle-left">
                     <img src="{{ asset('3d-computer(1).png') }}" class="computer">
-                        {{-- <p class="text-center pt-0 pb-0 p-4 mb-0" style="font-size: 13px;">
-                            MemberPay is a payment platform that allows you to be a member of the organization.
-                        </p> --}}
+
                     </div>
                 </div>
             </div>

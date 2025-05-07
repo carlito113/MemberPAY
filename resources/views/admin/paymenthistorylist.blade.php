@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    <link href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/table.css') }}">
 </head>
 <body>
     @include('admin.navadmin')
@@ -70,27 +72,34 @@
                 }
             @endphp
 
-            <!-- Filter Form -->
-            <form method="GET" action="{{ route('admin.paymenthistorylist') }}" class="mb-4">
-    <input type="hidden" name="semester_id" value="{{ $currentSemester ? $currentSemester->id : '' }}">
-    
-    <select name="section" class="form-select" id="sectionDropdown" style="max-width: 200px; display: inline-block;" onchange="this.form.submit()">
-        <option value="">Show All</option>
-        @foreach ($groupedSections as $year => $sections)
-            <optgroup label="{{ ordinal($year) }} Year">
-                @foreach ($sections as $sec)
-                    <option value="{{ $sec }}" {{ $section == $sec ? 'selected' : '' }}>
-                        {{ ordinal((int) substr($sec, 2, 1)) }} Year - {{ $sec }}
-                    </option>
-                @endforeach
-            </optgroup>
-        @endforeach
-    </select>
-</form>
+            <div class="d-flex justify-content-between-table align-items-center mb-3 flex-wrap gap-2">
+                <!-- Filter Dropdown -->
+                <form method="GET" action="{{ route('admin.paymenthistorylist') }}">
+                    <!-- Preserve semester_id -->
+                    <input type="hidden" name="semester_id" value="{{ request('semester_id') }}">
+                    
+                    <select name="filter" class="form-select" style="min-width: 200px;" onchange="this.form.submit()">
+                        <option value="">Show All</option>
+                        @foreach ($groupedSections as $year => $sections)
+                            <option value="year_{{ $year }}"
+                                {{ request('filter') == 'year_'.$year ? 'selected' : '' }}>
+                                {{ ordinal($year) }} Year
+                            </option>
+                            @foreach ($sections as $sec)
+                                <option value="section_{{ $sec }}"
+                                    {{ request('filter') == 'section_'.$sec ? 'selected' : '' }}>
+                                    {{ ordinal((int) substr($sec, 2, 1)) }} Year - {{ $sec }}
+                                </option>
+                            @endforeach
+                        @endforeach
+                    </select>
+                </form>
 
+                <!-- DataTable Search bar is automatically included -->
+            </div>
 
             <!-- Students Table -->
-            <table class="table table-striped">
+            <table id="studentsTable" class="table table-striped table-bordered table-hover align-middle">
                 <thead>
                     <tr>
                         <th>Student Id</th>
@@ -107,7 +116,7 @@
                             <td>{{ $student->first_name }}</td>
                             <td>{{ $student->last_name }}</td>
                             <td>{{ $student->section }}</td>
-                            <td>{{ $student->payment_status }}</td> 
+                            <td>{{ $student->payment_status }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -118,18 +127,28 @@
             </table>
 
             @if ($currentSemester)
-    <a href="{{ route('admin.paymenthistorylist.pdf', [
-        'semester_id' => $currentSemester->id,
-        'section' => $section
-    ]) }}" class="btn btn-primary">
+            <form method="GET" action="{{ route('admin.paymenthistorylist.pdf') }}" id="pdfDownloadForm" class="d-inline">
+    <input type="hidden" name="semester_id" value="{{ $currentSemester->id }}">
+    <input type="hidden" name="filter" value="{{ request('filter') }}">
+    <input type="hidden" name="search" id="searchInput">
+    <input type="hidden" name="order_column" id="orderColumnInput">
+    <input type="hidden" name="order_dir" id="orderDirInput">
+    <button type="submit" class="btn btn-primary">
         Download PDF
-    </a>
+    </button>
+</form>
+
 @endif
+
 
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables Bootstrap 5 JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const toggleBtn = document.querySelector('.toggle-btn');
@@ -152,6 +171,22 @@
                 localStorage.setItem('sidebarOpen', sidebar.classList.contains('open'));
             });
         });
+    </script>
+    <script>
+       $(document).ready(function () {
+    const table = $('#studentsTable').DataTable();
+
+    $('#pdfDownloadForm').on('submit', function () {
+        const searchVal = table.search();
+        const order = table.order()[0]; // [index, direction]
+
+        $('#searchInput').val(searchVal);
+        $('#orderColumnInput').val(order[0]);
+        $('#orderDirInput').val(order[1]);
+    });
+});
+
+
     </script>
 </body>
 </html>
