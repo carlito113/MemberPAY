@@ -1,0 +1,14 @@
+.modal-dialog {
+    max-width: 600px; /* or any preferred max-width */
+}
+
+.modal-content {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-body {
+    overflow-y: auto;
+    max-height: calc(90vh - 140px); /* Adjust based on header+footer height */
+}

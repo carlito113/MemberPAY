@@ -5,15 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title>Admin - Students</title>
+
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
         <link href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
         <link rel="stylesheet" href="{{ asset('css/sidenav.css') }}">
         <link rel="stylesheet" href="{{ asset('css/table.css') }}">
-
-
+        <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/modal.css') }}">
 
 
 
@@ -143,7 +143,7 @@
                                             <div class="modal-body">
                                                 <div class="mb-2">
                                                     <label class="form-label fw-semibold">First Name</label>
-                                                    <input name="first_name" class="form-control @error('first_name') is-invalid @enderror"
+                                                    <input name="first_name" maxlength="20" oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" class="form-control @error('first_name') is-invalid @enderror"
                                                         value="{{ old('first_name', $student->first_name) }}" required>
                                                     @if(session('editing_student_id') == $student->id)
                                                         @error('first_name')
@@ -153,7 +153,7 @@
                                                 </div>
                                                 <div class="mb-2">
                                                     <label class="form-label fw-semibold">Last Name</label>
-                                                    <input name="last_name" class="form-control @error('last_name') is-invalid @enderror"
+                                                    <input name="last_name" maxlength="20" oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" class="form-control @error('last_name') is-invalid @enderror"
                                                         value="{{ old('last_name', $student->last_name) }}" required>
                                                     @if(session('editing_student_id') == $student->id)
                                                         @error('last_name')
@@ -164,7 +164,7 @@
 
                                                 <div class="mb-2">
                                                     <label class="form-label fw-semibold">Contact Number</label>
-                                                    <input name="contact_number" class="form-control @error('contact_number') is-invalid @enderror"
+                                                    <input name="contact_number"  maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control @error('contact_number') is-invalid @enderror"
                                                         value="{{ old('contact_number', $student->contact_number) }}" required>
                                                     @if(session('editing_student_id') == $student->id)
                                                         @error('contact_number')
@@ -175,12 +175,12 @@
 
                                                 <div class="mb-2">
                                                     <label class="form-label fw-semibold">ID Number</label>
-                                                    <input name="id_number" class="form-control" value="{{ $student->id_number }}" readonly>
+                                                    <input name="id_number" maxlength="7" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control" value="{{ $student->id_number }}" required>
                                                 </div>
 
                                                 <div class="mb-2">
                                                     <label class="form-label fw-semibold">Year Level</label>
-                                                    <select name="year_level" class="form-select @error('year_level') is-invalid @enderror" required>
+                                                    <select id="editYearLevel{{ $student->id }}" data-student-id="{{ $student->id }}" name="year_level" class="form-select @error('year_level') is-invalid @enderror" required>
                                                         @foreach (range(1, 4) as $level)
                                                             <option value="{{ $level }}" {{ old('year_level', $student->year_level) == $level ? 'selected' : '' }}>
                                                                 {{ $level }}{{ ['st','nd','rd','th'][$level-1] ?? 'th' }} Year
@@ -196,8 +196,9 @@
 
                                                 <div class="mb-2">
                                                     <label class="form-label fw-semibold">Section</label>
-                                                    <input name="section" class="form-control @error('section') is-invalid @enderror"
-                                                        value="{{ old('section', $student->section) }}" required>
+                                                    <select id="editSection{{ $student->id }}" name="section" class="form-select @error('section') is-invalid @enderror" required>
+                                                        <option value="{{ $student->section }}">{{ $student->section }}</option>
+                                                    </select>
                                                     @if(session('editing_student_id') == $student->id)
                                                         @error('section')
                                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -263,31 +264,52 @@
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold ">First Name</label>
-                                        <input type="text" name="first_name" class="form-control" required>
+                                        <input type="text" name="first_name" maxlength="20" oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" class="form-control @error('first_name') is-invalid @enderror" value="{{ old('first_name') }}"  required>
+                                        @error('first_name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold ">Last Name</label>
-                                        <input type="text" name="last_name" class="form-control" required>
+                                        <input type="text" name="last_name" maxlength="20" oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" class="form-control @error('last_name') is-invalid @enderror" value="{{ old('last_name') }}" required>
+                                        @error('last_name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold ">Contact Number</label>
-                                        <input type="text" name="contact_number" class="form-control" required>
+                                        <input type="text" name="contact_number" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control @error('contact_number') is-invalid @enderror" value="{{ old('contact_number') }}" required>
+                                        @error('contact_number')
+                                            <div class="invalid-feedback">Follow the format 09*********</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold ">ID Number</label>
-                                        <input type="text" name="id_number" class="form-control" required>
+                                        <input type="text" name="id_number" maxlength="7" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control @error('id_number') is-invalid @enderror" value="{{ old('id_number') }}" required>
+                                        @error('id_number')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold ">Year Level</label>
-                                        <select name="year_level" class="form-select">
+                                        <select name="year_level" id="year_level" class="form-select @error('year_label') is-invalid @enderror" value="{{ old('year_label') }}" required>
+                                            <option value="">-- Select Year --</option>
                                             @foreach (range(1,4) as $level)
                                                 <option value="{{ $level }}">{{ ordinal($level) }} Year</option>
                                             @endforeach
                                         </select>
+                                        @error('year_label')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold ">Section</label>
-                                        <input type="text" name="section" class="form-control" required>
+                                        <select name="section" id="section" class="form-select @error('section') is-invalid @enderror" required>
+                                            <option value="">-- Select Section --</option>
+                                        </select>
+                                        @error('section')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold">Organization</label>
@@ -371,6 +393,7 @@
                 });
             });
         </script>
+
         @if ($errors->any() && session('editing_student_id'))
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -379,5 +402,66 @@
             });
         </script>
         @endif
+
+        @if ($errors->any() && session('showAddModal'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var addModal = new bootstrap.Modal(document.getElementById('addStudentModal'));
+                addModal.show();
+            });
+        </script>
+        @endif
+
+        <script>
+            document.getElementById('year_level').addEventListener('change', function () {
+                const yearLevel = this.value;
+                const organization = "{{ $organization }}";
+
+                if (yearLevel) {
+                    fetch(`/api/sections?year_level=${yearLevel}&organization=${organization}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const sectionSelect = document.getElementById('section');
+                            sectionSelect.innerHTML = '';
+                            data.forEach(section => {
+                                const option = document.createElement('option');
+                                option.value = section.section;
+                                option.textContent = section.section;
+                                sectionSelect.appendChild(option);
+                            });
+                        });
+                }
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Attach event listeners to all year_level dropdowns in edit modals
+                document.querySelectorAll('[id^="editYearLevel"]').forEach(function (yearLevelDropdown) {
+                    yearLevelDropdown.addEventListener('change', function () {
+                        const yearLevel = this.value;
+                        const studentId = this.dataset.studentId; // Get the student ID from a data attribute
+                        const organization = "{{ $organization }}";
+
+                        if (yearLevel) {
+                            fetch(`/api/sections?year_level=${yearLevel}&organization=${organization}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    const sectionSelect = document.getElementById(`editSection${studentId}`);
+                                    sectionSelect.innerHTML = '';
+                                    data.forEach(section => {
+                                        const option = document.createElement('option');
+                                        option.value = section.section;
+                                        option.textContent = section.section;
+                                        sectionSelect.appendChild(option);
+                                    });
+                                });
+                        }
+                    });
+                });
+            });
+        </script>
+
+
     </body>
 </html>

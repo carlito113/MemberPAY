@@ -52,3 +52,5 @@ Route::middleware(['auth:student'])->group(function () {
 
     Route::get('/student/profile', [StudentAuthController::class, 'studentProfile'])->name('student.profile');
 });
+Route::get('/api/sections', [StudentController::class, 'getByYearAndOrg']);
+

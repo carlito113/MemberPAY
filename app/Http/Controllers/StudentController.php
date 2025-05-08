@@ -5,22 +5,29 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
     // Store a new student
     public function store(Request $request)
     {
-        // dd($request->all());
-        $request->validate([
-            'id_number' => 'required|unique:students,id_number',
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'id_number' => ['required', 'unique:students,id_number', 'regex:/^\d{7}$/'],
+            'first_name' => ['required', 'regex:/^[A-Za-z\s\-]+$/'],
+            'last_name' => ['required', 'regex:/^[A-Za-z\s\-]+$/'],
             'contact_number' => ['required', 'regex:/^09\d{9}$/'],
             'year_level' => 'required|integer|between:1,4',
             'section' => 'required|string',
             'organization' => 'required|string',
         ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('showAddModal', true);
+        }
 
         Student::create($request->all());
 
@@ -35,6 +42,10 @@ class StudentController extends Controller
                 'contact_number' => ['required', 'regex:/^09\d{9}$/'],
                 'year_level' => 'required|integer|between:1,4',
                 'section' => 'required|string',
+                'id_number' => [
+                    'required',
+                    Rule::unique('students', 'id_number')->ignore($student->id),
+                ],
             ]);
 
             if ($validator->fails()) {
@@ -60,6 +71,18 @@ class StudentController extends Controller
         $student->save();
 
         return back()->with('success', 'Student transferred to ' . $request->organization . ' successfully.');
+    }
+
+    public function getByYearAndOrg(Request $request)
+    {
+        $sections = Student::where('year_level', $request->year_level)
+            ->where('organization', $request->organization)
+            ->select('section')
+            ->distinct()
+            ->orderBy('section')
+            ->get();
+
+        return response()->json($sections);
     }
 
 
