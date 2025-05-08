@@ -35,6 +35,12 @@ class Student extends Authenticatable
                 ->withTimestamps();
 }
 
+public function organizations()
+{
+    return $this->belongsToMany(Organization::class, 'organization_student');
+}
+
+
 
 // public function organization()
 // {

@@ -88,7 +88,8 @@
                     <thead>
                         <tr>
                             <th>Student Id</th>
-                            <th>Name</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
                             <th>Contact Number</th>
                             <th>Year Level</th>
                             <th>Section</th>
@@ -101,7 +102,8 @@
                         @forelse ($students as $student)
                             <tr>
                                 <td>{{ $student->id_number }}</td>
-                                <td>{{ $student->first_name }} {{ $student->last_name }}</td>
+                                <td>{{ $student->first_name }} </td>    
+                                <td> {{ $student->last_name }}</td>
                                 <td>{{ $student->contact_number }}</td>
                                 <td> Year {{ $student->year_level }}</td>
                                 <td>{{ $student->section }}</td>

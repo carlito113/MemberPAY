@@ -16,4 +16,12 @@ public function semester()
     return $this->belongsTo(Semester::class);
 }
 
+
+public function students()
+{
+    return $this->belongsToMany(Student::class)->withTimestamps();
 }
+
+}
+
+
