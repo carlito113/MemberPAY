@@ -102,8 +102,9 @@
                 <thead>
                     <tr>
                         <th>Student Id</th>
-                        <th>First Name</th>
                         <th>Last Name</th>
+                        <th>First Name</th>
+                      
                         <th>Section</th>
                         <th>Payment Status</th>
 
@@ -113,8 +114,9 @@
                     @forelse ($students as $student)
                         <tr>
                             <td>{{ $student->id_number }}</td>
-                            <td>{{ $student->first_name }}</td>
                             <td>{{ $student->last_name }}</td>
+                            <td>{{ $student->first_name }}</td>
+                            
                             <td>{{$student->section}}</td>
                             <td>
                                 <form action="{{ route('admin.updatePaymentStatus') }}" method="POST">
@@ -201,7 +203,7 @@
                 pageLength: 10,
                 lengthMenu: [10, 25, 50, 100],
                 columnDefs: [
-                    { orderable: false, targets: 3 } // Disable sorting on "Action" column
+                    { orderable: false, targets: 4 } // Disable sorting on "Action" column
                 ],
                 initComplete: function () {
                     const searchBox = $('#studentsTable_filter');

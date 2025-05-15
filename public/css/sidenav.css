@@ -90,8 +90,21 @@ body {
 .sidebar .nav-link:hover i {
     color: #000;
 }
+
 .sidebar .nav-item {
     margin-left: -5px; /* Push the entire item slightly to the left */
+}
+.nav-link.active {
+    background-color: #d7dde2;
+    color: #000;
+    border-radius: 0.375rem;
+}
+
+.sidebar .nav-link.active i {
+    color: #000;
+}
+.nav-link.active i {
+    color: #fff;
 }
 
 .sidebar .toggle-btn {

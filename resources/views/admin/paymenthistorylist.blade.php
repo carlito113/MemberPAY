@@ -32,13 +32,35 @@
                 </div>
                 <div class="line"></div>
                 <br>
-                @if ($semesters->isNotEmpty())
-                <h1 class="fw-bold text-warning mb-4">
-        {{ $currentSemester->semester }} {{ $currentSemester->academic_year }}
-    </h1>
-                @else
-                    <h1 class="text-danger">No semester records found for this organization.</h1>
-                @endif
+                <div class="row">
+                    <div class="col-10">
+                        @if ($semesters->isNotEmpty())
+                            <h1 class="fw-bold text-primary mb-4">
+                                {{ $currentSemester->semester }} {{ $currentSemester->academic_year }}
+                            </h1>
+                        @else
+                            <h1 class="text-danger">No semester records found for this organization.</h1>
+                        @endif
+                    </div>
+                    <div class="col-2">
+                    @if ($currentSemester)
+                        <form method="GET" action="{{ route('admin.paymenthistorylist.pdf') }}" id="pdfDownloadForm" class="d-inline">
+                            <input type="hidden" name="semester_id" value="{{ $currentSemester->id }}">
+                            <input type="hidden" name="filter" value="{{ request('filter') }}">
+                            <input type="hidden" name="search" id="searchInput">
+                            <input type="hidden" name="order_column" id="orderColumnInput">
+                            <input type="hidden" name="order_dir" id="orderDirInput">
+                            <button type="submit" class="btn btn-success">
+                                Download PDF
+                            </button>
+                        </form>
+
+                    @endif
+
+                    </div>
+                </div>
+
+               
                 <br>
             </div>
 
@@ -103,8 +125,9 @@
                 <thead>
                     <tr>
                         <th>Student Id</th>
-                        <th>First Name</th>
                         <th>Last Name</th>
+                        <th>First Name</th>
+                        
                         <th>Section</th>
                         <th>Payment Status</th>
                     </tr>
@@ -113,8 +136,9 @@
                     @forelse ($students as $student)
                         <tr>
                             <td>{{ $student->id_number }}</td>
-                            <td>{{ $student->first_name }}</td>
                             <td>{{ $student->last_name }}</td>
+                            <td>{{ $student->first_name }}</td>
+                           
                             <td>{{ $student->section }}</td>
                             <td>{{ $student->payment_status }}</td>
                         </tr>
@@ -125,21 +149,8 @@
                     @endforelse
                 </tbody>
             </table>
-
-            @if ($currentSemester)
-            <form method="GET" action="{{ route('admin.paymenthistorylist.pdf') }}" id="pdfDownloadForm" class="d-inline">
-    <input type="hidden" name="semester_id" value="{{ $currentSemester->id }}">
-    <input type="hidden" name="filter" value="{{ request('filter') }}">
-    <input type="hidden" name="search" id="searchInput">
-    <input type="hidden" name="order_column" id="orderColumnInput">
-    <input type="hidden" name="order_dir" id="orderDirInput">
-    <button type="submit" class="btn btn-primary">
-        Download PDF
-    </button>
-</form>
-
-@endif
-
+            
+          
 
         </div>
     </div>

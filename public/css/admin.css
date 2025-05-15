@@ -43,15 +43,15 @@ html, body {
 
 
 .col:nth-child(1) .card {
-    background-color: #34c039; /* example style for the first card */
+    background-color: #000080; /* example style for the first card */
 }
 
 .col:nth-child(2) .card {
-    background-color: #2437ca; /* second card */
+    background-color: #228B22; /* second card */
   }
 
 .col:nth-child(3) .card {
-    background-color: #d32626; /* third card */
+    background-color: #DC143C; /* third card */
 }
 
 /* admin.css */
@@ -62,6 +62,15 @@ html, body {
     overflow: hidden !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05) !important;
 }
+
+.cardIcon{
+    font-size: 6rem; 
+    bottom: 10px; 
+    right: 10px; 
+    z-index: 1; 
+    pointer-events: none;
+}
+
 
 /* Round table cells */
 #studentsTable.dataTable td,

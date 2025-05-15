@@ -95,11 +95,44 @@ class StudentController extends Controller
             'organization' => 'required|string'
         ]);
 
-        $student->organization = $request->organization;
+        // Find the new organization
+        $newOrg = Organization::where('code', $request->organization)->first();
+
+        if (!$newOrg) {
+            return back()->with('error', 'Organization not found.');
+        }
+
+        // Detach only course organization (not year-level ones like FCO/SCO/etc.)
+        $courseOrgs = ['APSS', 'AVED', 'BACOMMUNITY', 'BPED MOVERS', 'COFED', 'DIGITS',
+            'EC', 'EA', 'HRC', 'JSWAP', 'KMF', 'LNU MSS', 'INTERSOC',
+            'TC', 'TLEG', 'SQU', 'ECEO']; // <- adjust this list based on your actual course org codes
+        $orgIdsToDetach = $student->organizations()
+            ->whereIn('code', $courseOrgs)
+            ->pluck('organizations.id');
+
+        $student->organizations()->detach($orgIdsToDetach);
+
+        // Attach the new organization
+        $student->organizations()->attach($newOrg->id);
+        // Update student's current organization field
+        $student->current_organization_id = $newOrg->id;
         $student->save();
+        
 
         return back()->with('success', 'Student transferred to ' . $request->organization . ' successfully.');
     }
+
+    // public function transfer(Request $request, Student $student)
+    // {
+    //     $request->validate([
+    //         'organization' => 'required|string'
+    //     ]);
+
+    //     $student->organization = $request->organization;
+    //     $student->save();
+
+    //     return back()->with('success', 'Student transferred to ' . $request->organization . ' successfully.');
+    // }
 
     public function getByYearAndOrg(Request $request)
     {

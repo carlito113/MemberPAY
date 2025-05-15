@@ -6,22 +6,28 @@
     <img src="{{ asset('MemberPay.png') }}" alt="MemberPay Logo">
     <ul class="nav flex-column">
         <li class="nav-item mb-3">
-            <a class="nav-link d-flex align-items-center text-decoration-none" href="{{ route('admin.dashboard') }}">
+            <a class="nav-link d-flex align-items-center text-decoration-none {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" 
+                href="{{ route('admin.dashboard') }}">
                 <i class="bi bi-house-door me-2"></i> <span>Dashboard</span>
             </a>
         </li>
+
         <li class="nav-item mb-3">
-            <a class="nav-link d-flex align-items-center" href="{{ route('admin.addpayment') }}"> 
+            <a class="nav-link d-flex align-items-center text-decoration-none {{ request()->routeIs('admin.addpayment') ? 'active' : '' }}" 
+                href="{{ route('admin.addpayment') }}"> 
                 <i class="bi bi-cash me-2"></i> <span>Add Payment</span>
             </a>
         </li>
         <li class="nav-item mb-3">
-            <a class="nav-link d-flex align-items-center text-decoration-none" href="{{ route('admin.members') }}">
+            <a class="nav-link d-flex align-items-center text-decoration-none text-decoration-none {{ request()->routeIs('admin.members') ? 'active' : '' }}" 
+                href="{{ route('admin.members') }}">
+                
                 <i class="bi bi-people me-2"></i> <span>Members</span>
             </a>
         </li>
         <li class="nav-item mb-3">
-            <a class="nav-link d-flex align-items-center text-decoration-none" href="{{ route('admin.paymenthistory') }}">
+            <a class="nav-link d-flex align-items-center text-decoration-none text-decoration-none {{ request()->routeIs('admin.paymenthistory') ? 'active' : '' }}" 
+                href="{{ route('admin.paymenthistory') }}">
                 <i class="bi bi-file-earmark-text me-2"></i> <span>Payment History</span>
             </a>
         </li>

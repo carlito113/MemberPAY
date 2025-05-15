@@ -89,9 +89,12 @@ class AdminController extends Controller
             ->orderBy('semesters.created_at', 'asc')
             ->get();
     
-        $labels = $paymentStats->pluck('sem_label');
-        $paidData = $paymentStats->pluck('total_paid');
-        $totalData = $paymentStats->pluck('total_students');
+            $latestStats = $paymentStats->sortByDesc('created_at')->take(4)->sortBy('created_at')->values();
+
+            $labels = $latestStats->pluck('sem_label');
+            $paidData = $latestStats->pluck('total_paid');
+            $totalData = $latestStats->pluck('total_students');
+            
     
         return view('admin.dashboard', [
             'organization' => $organization,
@@ -597,7 +600,7 @@ class AdminController extends Controller
         if ($filter) {
             if (str_starts_with($filter, 'year_')) {
                 $year = str_replace('year_', '', $filter);
-                $studentsQuery->where('students.year', $year);
+                $studentsQuery->where('students.year_level', $year);
             } elseif (str_starts_with($filter, 'section_')) {
                 $section = str_replace('section_', '', $filter);
                 $studentsQuery->where('students.section', $section);

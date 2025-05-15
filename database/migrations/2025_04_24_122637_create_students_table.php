@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('id_number')->unique(); // for login
+            $table->string('id_number');// for login
             $table->string('year_level'); // 1st Year, etc.
             $table->string('organization'); // same as admin's username
             $table->timestamps();

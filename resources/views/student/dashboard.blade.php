@@ -48,10 +48,10 @@
                                         <p>
                                             @switch($student->year_level)
                                                 @case(1)
-                                                    SCO
+                                                    FCO
                                                     @break
                                                 @case(2)
-                                                    FCO
+                                                    SCO
                                                     @break
                                                 @case(3)
                                                     JCO

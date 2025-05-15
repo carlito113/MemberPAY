@@ -14,9 +14,6 @@
         <link rel="stylesheet" href="{{ asset('css/table.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
         <link rel="stylesheet" href="{{ asset('css/modal.css') }}">
-
-
-
     </head>
     <body>
         <div class="d-flex">
@@ -40,7 +37,12 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
-                <h2 class="fw-bold text-warning mb-4">👋 Hello, {{ $organization }} - Students List</h2>
+                <h2 class="fw-bold text-warning mb-4">Hello, {{ $organization }} Admin</h2>
+                <div class="line"></div>
+                <br>
+                <div>
+                    <h3 class="fw-bold org-title mb-1 text-primary"> Members List </h3>
+                </div>
                 <!-- Add Student Button -->
                 <div class="d-flex justify-content-end mb-3">
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStudentModal">
@@ -88,8 +90,8 @@
                     <thead>
                         <tr>
                             <th>Student Id</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
+                            <th>Name</th>
+                           
                             <th>Contact Number</th>
                             <th>Year Level</th>
                             <th>Section</th>
@@ -102,8 +104,8 @@
                         @forelse ($students as $student)
                             <tr>
                                 <td>{{ $student->id_number }}</td>
-                                <td>{{ $student->first_name }} </td>    
-                                <td> {{ $student->last_name }}</td>
+                                <td>{{ $student->last_name }}, {{ $student->first_name }}</td>    
+                             
                                 <td>{{ $student->contact_number }}</td>
                                 <td> Year {{ $student->year_level }}</td>
                                 <td>{{ $student->section }}</td>
@@ -206,6 +208,19 @@
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     @endif
+                                                </div>
+                                                @php
+                                                    $courseOrgs = ['APSS', 'AVED', 'BACOMMUNITY', 'BPED MOVERS', 'COFED', 'DIGITS',
+                                                        'EC', 'EA', 'HRC', 'JSWAP', 'KMF', 'LNU MSS', 'INTERSOC', 'TC', 'TLEG', 'SQU', 'ECEO'];
+
+                                                    $originalOrg = $student->organizations()->whereIn('code', $courseOrgs)->first();
+                                                    $currentOrg = $student->currentOrganization;
+                                                @endphp
+                                                <div class="mb-2">
+                                                    <label class="form-label fw-semibold">Organization</label>
+                                                    <input name="organization" class="form-control" 
+                                                        value="{{ $currentOrg->name ?? $originalOrg->name ?? 'No organization' }}"
+                                                        readonly required>
                                                 </div>
                                             </div>
 
@@ -385,7 +400,7 @@
                     pageLength: 10,
                     lengthMenu: [10, 25, 50, 100],
                     columnDefs: [
-                        { orderable: false, targets: 6 } // Disable sorting on "Action" column
+                        { orderable: false, targets: 5 } // Disable sorting on "Action" column
                     ],
                     initComplete: function () {
                         const searchBox = $('#studentsTable_filter');

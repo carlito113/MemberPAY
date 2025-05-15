@@ -16,34 +16,34 @@ class StudentAuthController extends Controller
     {
         $student = auth()->user();
     
-        // Get only valid semester IDs where the admin matches between pivot and semester
+        $yearLevelOrgs = ['FCO', 'SCO', 'JCO', 'SENCO'];
+    
+        // Get all valid semester IDs where admin matches, and admin is NOT a year-level org
         $validSemesterIds = \DB::table('semester_student')
             ->join('semesters', 'semester_student.semester_id', '=', 'semesters.id')
+            ->join('admins', 'semesters.admin_id', '=', 'admins.id')
             ->where('semester_student.student_id', $student->id)
             ->whereColumn('semester_student.admin_id', 'semesters.admin_id')
+            ->whereNotIn('admins.username', $yearLevelOrgs) // Exclude year-level orgs
             ->pluck('semester_student.semester_id')
-            ->toArray(); // make sure it's a pure array for whereIn
+            ->toArray();
     
-        // Now load the actual semesters the student belongs to AND admin matches
+        // Fetch semesters excluding year-level orgs
         $semesters = $student->semesters()
             ->whereIn('semester_id', $validSemesterIds)
-            ->wherePivot('student_id', $student->id) // Explicit filter
+            ->wherePivot('student_id', $student->id)
             ->with('admin')
             ->get();
-
     
-        // Dynamically get the org name from the first valid semester
-        $organizationName = $semesters->first()?->admin?->username ?? 'Unknown Organization';
+        // Show latest course org (if available)
+        $organizationName = $semesters->last()?->admin?->username ?? 'Unknown Organization';
     
-        // Get all admins for the 'Updated By' map
         $adminMap = \App\Models\Admin::pluck('name', 'id');
-        
     
         return view('student.organizationcard', compact('student', 'semesters', 'organizationName', 'adminMap'));
     }
     
-    
-    
+
 
     public function viewCardTwo()
     {

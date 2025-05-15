@@ -101,7 +101,7 @@ class AdminSeeder extends Seeder
                 3 => ['AI31', 'AI32', 'AI33', 'AI34', 'AI35'],
                 4 => ['AI41', 'AI42', 'AI43', 'AI44', 'AI45'],
             ],
-            'English Circle' => [
+            'EC' => [
                 1 => ['EN11', 'EN12', 'EN13', 'EN14', 'EN15', 'EN16', 'EN17'],
                 2 => ['EN21', 'EN22', 'EN23', 'EN24', 'EN25'],
                 3 => ['EN31', 'EN32', 'EN33', 'EN34', 'EN35'],
@@ -149,7 +149,7 @@ class AdminSeeder extends Seeder
                 3 => ['TC31', 'TC32', 'TC33', 'TC34', 'TC35'],
                 4 => ['TC41', 'TC42', 'TC43'],
             ],
-            'TLEG TLE' => [
+            'TLEG' => [
                 1 => ['TL11', 'TL12', 'TL13', 'TL14', 'TL15', 'TL16', 'TL17'],
                 2 => ['TL21', 'TL22', 'TL23', 'TL24', 'TL25'],
                 3 => ['TL31', 'TL32', 'TL33', 'TL34', 'TL35'],

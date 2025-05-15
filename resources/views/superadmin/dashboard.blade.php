@@ -20,7 +20,7 @@
 
             <div class="row">
             @foreach ($organizations as $org)
-            <p>{{ json_encode($org->semesters) }}</p>
+            <!-- <p>{{ json_encode($org->semesters) }}</p> -->
 
 <div class="col-12 mb-3">
     <div class="card-custom shadow-sm d-flex justify-content-between align-items-center">

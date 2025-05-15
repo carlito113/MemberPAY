@@ -39,7 +39,10 @@ public function organizations()
 {
     return $this->belongsToMany(Organization::class, 'organization_student');
 }
-
+public function currentOrganization()
+{
+    return $this->belongsTo(Organization::class, 'current_organization_id');
+}
 
 
 // public function organization()

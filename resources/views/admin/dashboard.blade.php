@@ -8,7 +8,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Admin Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <link rel="stylesheet" 
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
@@ -31,27 +32,31 @@
            
             <div class="row">
                 <div class="col mb-3">
-                    <div class="card h-100 d-flex flex-column">
-                        <div class="card-body d-flex flex-column justify-content-end">
-                            <h1 class="text text-white">{{ $totalMembers }}</h1>
-                            <h6 class="card-text text-white p-2 mt-auto">Total Members</h6>
+                    <div class="card h-100 position-relative overflow-hidden text-white">
+                        <div class="card-body d-flex flex-column justify-content-end position-relative" style="z-index: 2;">
+                            <h1 class="text">{{ $totalMembers }}</h1>
+                            <h6 class="card-text p-2 mt-auto">Total Members</h6>
                         </div>
+                        <i class="cardIcon fa-solid fa-users     position-absolute text-white-50"></i>
                     </div>
+
                 </div>
                 <div class="col mb-3">
-                    <div class="card h-100 d-flex flex-column">
-                        <div class="card-body d-flex flex-column justify-content-end">
+                    <div class="card h-100 position-relative overflow-hidden text-white">
+                        <div class="card-body d-flex flex-column justify-content-end position-relative" style="z-index: 2;">
                             <h1 class="text text-white">{{ $totalPaid }}</h1>
                             <h6 class="card-text text-white p-2 mt-auto">Total Paid</h6>
                         </div>
+                        <i class="cardIcon fa-solid fa-money-bills position-absolute text-white-50"></i>
                     </div>
                 </div>
                 <div class="col mb-3">
-                    <div class="card h-100 d-flex flex-column">
-                        <div class="card-body d-flex flex-column justify-content-end">
+                    <div class="card h-100 position-relative overflow-hidden text-white">
+                        <div class="card-body d-flex flex-column justify-content-end position-relative" style="z-index: 2;">
                             <h1 class="text text-white">{{ $totalUnpaid }}</h1>
                             <h6 class="card-text text-white p-2 mt-auto">Total Unpaid</h6>
                         </div>
+                        <i class="cardIcon fa-solid fa-triangle-exclamation position-absolute text-white-50"></i>
                     </div>
                 </div>
             </div>
@@ -165,6 +170,7 @@
         });
     });
 </script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const ctx = document.getElementById('paidChart').getContext('2d');
@@ -193,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
             plugins: {
                 title: {
                     display: true,
-                    text: 'Paid vs Total Students per Semester'
+                    text: 'Total Paid vs Total Unpaid Students per Semester'
                 },
                 legend: {
                     position: 'bottom'
