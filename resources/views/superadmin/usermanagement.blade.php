@@ -58,6 +58,15 @@
                                                 EDIT
                                             </button>
                                         @endif
+                                        @if($admin)
+                                            <button class="btn btn-success assign-btn"
+                                                data-org="{{ $name }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#assignModal">
+                                                New Treasurer
+                                            </button>
+                                        @endif
+
                                     </td>
                                 </tr>
                             @endforeach
@@ -71,7 +80,7 @@
             <div class="modal-dialog">
                 <form id="editUserForm" method="POST">
                     @csrf
-                    @method('PATCH')
+                    @method('PUT')
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Edit User</h5>
@@ -101,61 +110,96 @@
             </div>
         </div>
 
+        <div class="modal fade" id="assignModal" tabindex="-1" aria-labelledby="assignModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="{{ route('admins.assign') }}" method="POST">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign New Treasurer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="assign-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="assign-name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="assign-password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="assign-password" name="password" required>
+                    </div>
+                    <input type="hidden" id="assign-org" name="organization">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Assign</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
         <!-- Bootstrap JS (required for modals) -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const toggleBtn = document.querySelector('.toggle-btn');
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
+document.addEventListener('DOMContentLoaded', function () {
+    // Toggle sidebar
+    const toggleBtn = document.querySelector('.toggle-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
 
-            toggleBtn.addEventListener('click', function () {
-                sidebar.classList.toggle('open');
-                mainContent.classList.toggle('shifted');
-            });
+    if (toggleBtn && sidebar && mainContent) {
+        toggleBtn.addEventListener('click', function () {
+            sidebar.classList.toggle('open');
+            mainContent.classList.toggle('shifted');
         });
-    </script>
+    }
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const editButtons = document.querySelectorAll('.edit-btn');
-            const editForm = document.getElementById('editUserForm');
+    // Edit modal setup
+    const editButtons = document.querySelectorAll('.edit-btn');
+    const editForm = document.getElementById('editUserForm');
 
-            editButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const name = button.getAttribute('data-name');
-                    const password = button.getAttribute('data-password');
-                    const id = button.getAttribute('data-id');
-                    const org = button.getAttribute('data-org');
+    editButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const name = button.getAttribute('data-name');
+            const password = button.getAttribute('data-password');
+            const id = button.getAttribute('data-id');
+            const org = button.getAttribute('data-org');
 
-                    document.getElementById('edit-name').value = name;
-                    document.getElementById('edit-password').value = password;
-                    document.getElementById('edit-id').value = id;
-                    document.getElementById('edit-organization').value = org;
+            document.getElementById('edit-name').value = name;
+            document.getElementById('edit-password').value = password;
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-organization').value = org;
 
-                    // Set the form action dynamically
-                    editForm.action = `/admins/${id}`; // Ensure this matches the route definition
-                });
-            });
+            // Set form action dynamically
+            editForm.action = `/admins/${id}`;
         });
-    </script>
+    });
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const togglePassword = document.querySelector('.toggle-edit-password');
-            const passwordField = document.getElementById('edit-password');
-
-            togglePassword.addEventListener('click', function () {
-                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordField.setAttribute('type', type);
-
-                // Toggle eye icon
-                this.classList.toggle('bi-eye');
-                this.classList.toggle('bi-eye-slash');
-            });
+    // Toggle edit password visibility
+    const togglePassword = document.querySelector('.toggle-edit-password');
+    const passwordField = document.getElementById('edit-password');
+    if (togglePassword && passwordField) {
+        togglePassword.addEventListener('click', function () {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            this.classList.toggle('bi-eye');
+            this.classList.toggle('bi-eye-slash');
         });
-    </script>
-</body>
+    }
+
+    // Assign modal organization setter
+    const assignButtons = document.querySelectorAll('.assign-btn');
+    assignButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const org = button.getAttribute('data-org');
+            document.getElementById('assign-org').value = org;
+        });
+    });
+});
+</script>
+
 </html>

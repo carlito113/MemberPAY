@@ -25,6 +25,9 @@
             <div class="row">
     @if($semesters->isNotEmpty())
         @foreach ($semesters as $sem)
+        <p>Semesters count: {{ $semesters->count() }}</p>
+<p>Semester: {{ $sem->semester }} - {{ $sem->academic_year }}</p>
+
             <div class="col-12 mb-3 position-relative">
                 <a href="{{ route('admin.semesterrecord', ['semester_id' => $sem->id]) }}" class="text-decoration-none text-dark d-block">
                         
@@ -37,8 +40,10 @@
                                 <h3 class="fw-bold org-title mb-1">
                                     {{ strtoupper($sem->semester) }} COLLECTION - Academic Year: {{ $sem->academic_year }}
                                 </h3>
+                                
                             </div>
                         </div>
+                        
                         <!-- Three Dots Dropdown -->
                         <div class="dropdown dots" onclick="event.stopPropagation();">
                            

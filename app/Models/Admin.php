@@ -14,7 +14,8 @@ class Admin extends Authenticatable // Extend the Authenticatable class
         'username', // admin's username, can be same as organization name
         'password', // admin's password (hashed)
         // admin's plain password (for internal use)
-        'name', // treasurer's name
+        'name', // treasurer's name 
+        'status',
         'role', // admin's role (e.g., 'admin', 'superadmin')
         'plain_password',
     ];

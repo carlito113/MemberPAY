@@ -31,6 +31,12 @@
                 <i class="bi bi-file-earmark-text me-2"></i> <span>Payment History</span>
             </a>
         </li>
+        <li class="nav-item mb-3">
+            <a class="nav-link d-flex align-items-center text-decoration-none text-decoration-none {{ request()->routeIs('admin.treasurerslist') ? 'active' : '' }}" 
+                href="{{ route('admin.treasurers') }}">
+                <i class="bi bi-file-earmark-text me-2"></i> <span>Treasurers</span>
+            </a>
+        </li>
         <li class="nav-item">
             {{-- <a href="{{ route('logout') }}" class="nav-link d-flex align-items-center">
                 <i class="bi bi-box-arrow-right me-2"></i> <span>Log Out</span>

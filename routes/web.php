@@ -18,16 +18,21 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/admin/addpayment', [AdminController::class, 'showAddPaymentForm'])->name('admin.showaddpayment');
     Route::get('/admin/members', [AdminController::class, 'showMembers'])->name('admin.members');
     Route::patch('/admin/students/{id}/toggle-status', [AdminController::class, 'toggleStatus'])->name('admin.students.toggleStatus');
+    Route::get('/admin/treasurers', [AdminController::class, 'treasurerslist'])->name('admin.treasurers');
 
     // Super Admin Dashboard
     Route::get('/superadmin/dashboard', [AdminController::class, 'superAdminDashboard'])->name('superadmin.dashboard');
     // User Management for Super Admin
     Route::get('/superadmin/usermanagement', [AdminController::class, 'userManagementSuperAdmin'])->name('usermanagement.dashboard');
-    Route::patch('/admins/{id}', [AdminController::class, 'updateAdminSuperadmin'])->name('admins.update');
+    Route::put('/admins/{id}', [AdminController::class, 'updateAdminSuperadmin'])->name('admins.update');
+    Route::post('/admins', [AdminController::class, 'assignNewTreasurer'])->name('admins.store');
+
     Route::get('/admin/payment', [AdminController::class, 'adminPayment'])->name('admin.addpayment');
     Route::post('/admin/addpayment', [AdminController::class, 'semStore'])->name('addpayment.semStore');
     Route::get('/admin/semesterrecord', [AdminController::class, 'semesterRecord'])->name('admin.semesterrecord');
     Route::get('/admin/set-semester/{id}', [AdminController::class, 'setSemester'])->name('admin.setSemester');
+    Route::post('/admins/assign', [AdminController::class, 'assignNewTreasurer'])->name('admins.assign');
+
 
     // Member Management
     Route::post('/students/store', [StudentController::class, 'store'])->name('admin.students.store');
