@@ -213,30 +213,38 @@ class AdminController extends Controller
 
 
     // Super Admin dashboard
-    public function superAdminDashboard()
-    {
-        $organizations = Admin::all()->map(function ($admin) {
-            $latestSemester = Semester::where('admin_id', $admin->id)
-                ->orderBy('created_at', 'desc')
-                ->first();
-    
-            $studentsCount = 0;
-    
-            if ($latestSemester) {
-                $studentsCount = \DB::table('semester_student')
-                    ->join('students', 'semester_student.student_id', '=', 'students.id')
-                    ->where('semester_student.semester_id', $latestSemester->id)
-                    ->whereRaw('LOWER(students.organization) = LOWER(?)', [$admin->username])
-                    ->count();
-            }
-    
-            $admin->students_count = $studentsCount;
-            return $admin;
-        });
-    
-        
-        return view('superadmin.dashboard', compact('organizations'));
-    }
+  public function superAdminDashboard()
+{
+    // Get current admins grouped by organization (case-insensitive)
+    $admins = Admin::where('status', 'current')
+        ->where('role', 'admin')
+        ->get()
+        ->groupBy(fn($admin) => strtoupper($admin->username))
+        ->map(fn($group) => $group->sortByDesc('created_at')->first());
+
+    // Attach student counts
+    $organizations = $admins->map(function ($admin) {
+        $latestSemester = Semester::where('admin_id', $admin->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $studentsCount = 0;
+
+        if ($latestSemester) {
+            $studentsCount = \DB::table('semester_student')
+                ->join('students', 'semester_student.student_id', '=', 'students.id')
+                ->where('semester_student.semester_id', $latestSemester->id)
+                ->whereRaw('LOWER(students.organization) = LOWER(?)', [$admin->username])
+                ->count();
+        }
+
+        $admin->students_count = $studentsCount;
+        return $admin;
+    });
+
+    return view('superadmin.dashboard', ['organizations' => $organizations]);
+}
+
     
 
 
@@ -636,8 +644,11 @@ if (!$currentSemester) {
         $orderDir = $request->input('order_dir');
     
         $currentSemester = Semester::where('id', $semesterId)
-            ->where('admin_id', $admin->id)
-            ->first();
+    ->whereHas('admin', function ($query) use ($organization) {
+        $query->where('username', $organization);
+    })
+    ->first();
+
     
         if (!$currentSemester) {
             return back()->withErrors(['error' => 'Semester not found.']);

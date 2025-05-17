@@ -33,8 +33,8 @@
                         @php
                             $organizations = [
                                 'APSS', 'AVED', 'BACOMMUNITY', 'BPED MOVERS', 'COFED', 'DIGITS',
-                                'English Circle', 'EA', 'HRC', 'JSWAP', 'KMF', 'LNU MSS', 'INTERSOC',
-                                'TC', 'TLEG TLE', 'SQU', 'ECEO', 'FCO', 'SCO', 'JCO', 'SENCO'
+                                'EC', 'EA', 'HRC', 'JSWAP', 'KMF', 'LNU MSS', 'INTERSOC',
+                                'TC', 'TLEG', 'SQU', 'ECEO', 'FCO', 'SCO', 'JCO', 'SENCO'
                             ];
                         @endphp
                         <tbody>
@@ -69,6 +69,11 @@
 
                                     </td>
                                 </tr>
+                                <td>
+    {{ $admin->name ?? 'NO ADMIN FOUND' }} <br>
+    <small>Status: {{ $admin->status ?? 'N/A' }}</small>
+</td>
+
                             @endforeach
                         </tbody>
                     </table>

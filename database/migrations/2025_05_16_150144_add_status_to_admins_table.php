@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('admins', function (Blueprint $table) {
-            $table->string('status')->default('past'); // values: 'current', 'past'
+            $table->string('status')->default('current'); // values: 'current', 'past'
         });
     }
 
