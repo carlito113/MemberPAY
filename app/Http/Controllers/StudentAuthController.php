@@ -12,6 +12,7 @@ class StudentAuthController extends Controller
         $student = Auth::guard('student')->user(); // Get logged-in student
         return view('student.dashboard', compact('student'));
     }
+
     public function viewCardOne()
     {
         $student = auth()->user();
@@ -39,52 +40,58 @@ class StudentAuthController extends Controller
         $organizationName = $semesters->last()?->admin?->username ?? 'Unknown Organization';
     
         $adminMap = \App\Models\Admin::pluck('name', 'id');
+
     
         return view('student.organizationcard', compact('student', 'semesters', 'organizationName', 'adminMap'));
     }
     
 
 
-    public function viewCardTwo()
-    {
-        $student = auth()->user();
-    
-        // Map year level to organization
-        $yearToOrgMap = [
-            1 => 'SCO',
-            2 => 'FCO',
-            3 => 'JCO',
-            4 => 'SENCO',
-        ];
-    
-        $expectedOrg = $yearToOrgMap[$student->year_level] ?? null;
-    
-        if (!$expectedOrg) {
-            abort(404, 'Organization not found for this year level.');
-        }
-    
-        // Get only valid semester IDs where the admin matches between pivot and semester
-        $validSemesterIds = \DB::table('semester_student')
-            ->join('semesters', 'semester_student.semester_id', '=', 'semesters.id')
-            ->join('admins', 'semesters.admin_id', '=', 'admins.id') // join to access admin username
-            ->where('semester_student.student_id', $student->id)
-            ->whereColumn('semester_student.admin_id', 'semesters.admin_id')
-            ->where('admins.username', $expectedOrg) // filter by expected organization
-            ->pluck('semester_student.semester_id')
-            ->toArray();
-    
-        $semesters = $student->semesters()
-            ->whereIn('semester_id', $validSemesterIds)
-            ->wherePivot('student_id', $student->id)
-            ->with('admin')
-            ->get();
-    
-        $organizationName = $semesters->first()?->admin?->username ?? $expectedOrg;
-    
-        $adminMap = \App\Models\Admin::pluck('name', 'id');
-    
-        return view('student.yearorganizationcard', compact('student', 'semesters', 'organizationName', 'adminMap'));
+  public function viewCardTwo()
+{
+    $student = auth()->user();
+
+    $yearToOrgMap = [
+        1 => 'FCO',
+        2 => 'SCO',
+        3 => 'JCO',
+        4 => 'SENCO',
+    ];
+
+    $expectedOrg = $yearToOrgMap[$student->year_level] ?? null;
+
+    if (!$expectedOrg) {
+        abort(404, 'Organization not found for this year level.');
     }
+
+    // Fix: ensure semester admin is the same as pivot admin, and match by username
+    $validSemesterIds = \DB::table('semester_student')
+        ->join('semesters', 'semester_student.semester_id', '=', 'semesters.id')
+        ->join('admins', 'semesters.admin_id', '=', 'admins.id')
+        ->where('semester_student.student_id', $student->id)
+        ->where('admins.username', $expectedOrg)
+        ->whereColumn('semester_student.admin_id', 'semesters.admin_id') // Ensure match
+        ->pluck('semester_student.semester_id')
+        ->toArray();
+
+    $semesters = $student->semesters()
+        ->whereIn('semester_id', $validSemesterIds)
+        ->with('admin')
+        ->get();
+
+    $organizationName = $semesters->first()?->admin?->username ?? $expectedOrg;
+
+    $adminMap = \App\Models\Admin::pluck('name', 'id');
+//     dd([
+//     'expectedOrg' => $expectedOrg,
+//     'validSemesterIds' => $validSemesterIds,
+//     'semesters' => $semesters,
+// ]);
+
+
+    return view('student.yearorganizationcard', compact('student', 'semesters', 'organizationName', 'adminMap'));
+}
+
     
 
     public function studentProfile()

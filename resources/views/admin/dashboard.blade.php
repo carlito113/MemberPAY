@@ -67,8 +67,9 @@
                     <thead>
                         <tr>
                             <th scope="col">Student ID</th>
-                            <th scope="col">First Name</th>
+                           
                             <th scope="col">Last Name</th>
+                             <th scope="col">First Name</th>
                             <th scope="col">Section</th>
                         </tr>
                     </thead>
@@ -76,8 +77,9 @@
                         @forelse ($recentTransactions as $transaction)
                             <tr>
                                 <td>{{ $transaction->student_id }}</td>
-                                <td>{{ $transaction->first_name }}</td>
+                               
                                 <td>{{ $transaction->last_name }}</td>
+                                 <td>{{ $transaction->first_name }}</td>
                                 <td>{{ $transaction->section }}</td>
                             </tr>
                         @empty

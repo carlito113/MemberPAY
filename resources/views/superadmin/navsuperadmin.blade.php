@@ -6,13 +6,15 @@
     <img src="{{ asset('MemberPay.png') }}" alt="MemberPay Logo">
     <ul class="nav flex-column">
         <li class="nav-item mb-3">
-            <a class="nav-link d-flex align-items-center text-decoration-none" href="{{ route('superadmin.dashboard') }}">
+            <a class="nav-link d-flex align-items-center text-decoration-none {{ request()->routeIs('superadmin.dashboard') ? 'active' : '' }}"  
+                href="{{ route('superadmin.dashboard') }}">
                 <i class="bi bi-house-door me-2"></i> <span>Dashboard</span>
             </a>
         </li>
         <li class="nav-item mb-3">
-            <a class="nav-link d-flex align-items-center" href="{{ route('usermanagement.dashboard') }}">
-                <i class="bi bi-people-fill me-2"></i> <span>User Management</span>
+            <a class="nav-link d-flex align-items-center text-decoration-none {{ request()->routeIs('usermanagement.dashboard') ? 'active' : '' }}" 
+                href="{{ route('usermanagement.dashboard') }}">
+                <i class="bi bi-people me-2"></i> <span>User Management</span>
             </a>
         </li>
         <li class="nav-item">

@@ -6,12 +6,14 @@
     <img src="{{ asset('MemberPay.png') }}" alt="MemberPay Logo">
     <ul class="nav flex-column">
         <li class="nav-item mb-3">
-            <a class="nav-link d-flex align-items-center text-decoration-none" href="{{ route('student.dashboard') }}">
+            <a class="nav-link d-flex align-items-center text-decoration-none text-decoration-none {{ request()->routeIs('student.dashboard') ? 'active' : '' }}" 
+                href="{{ route('student.dashboard') }}">
                 <i class="bi bi-house-door me-2"></i> <span>Dashboard</span>
             </a>
         </li>
         <li class="nav-item mb-3">
-            <a class="nav-link d-flex align-items-center" href ="{{ route('student.profile') }}">
+            <a class="nav-link d-flex align-items-center text-decoration-none {{ request()->routeIs('student.profile') ? 'active' : '' }}" 
+                href ="{{ route('student.profile') }}">
                 <i class="bi bi-person me-2"></i> <span>Profile</span> 
             </a>
         </li>

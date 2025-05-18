@@ -52,9 +52,9 @@
 
                         </div>
                         <button type="submit" class="btn">Login</button>
-                        <a href="" style="color: rgb(65, 62, 62);" routerLink="/register">
+                        <!-- <a href="" style="color: rgb(65, 62, 62);" routerLink="/register">
                             <p>Terms and Conditions</p>
-                        </a>
+                        </a> -->
                         @if($errors->any())
                             <div class="alert alert-danger">
                                 <ul>

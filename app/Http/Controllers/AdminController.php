@@ -12,7 +12,7 @@ use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str; // Make sure this is at the top
+use Illuminate\Support\Str; 
 use App\Models\Organization;
 
 
@@ -22,7 +22,7 @@ class AdminController extends Controller
 {
     // Admin dashboard
  
-    public function dashboard()
+public function dashboard()
 {
     $admin = Auth::guard('admin')->user();
     $organization = $admin->username;
@@ -33,61 +33,106 @@ class AdminController extends Controller
         ->orderBy('created_at', 'desc')
         ->first();
 
-    $labels = collect();
-    $paidData = collect();
-    $totalData = collect();
-
     if (!$currentSemester) {
-        return view('admin.dashboard', compact('organization', 'labels', 'paidData', 'totalData'))
-            ->with([
-                'totalMembers' => 0,
-                'totalPaid' => 0,
-                'totalUnpaid' => 0,
-                'recentTransactions' => [],
-            ]);
+        return view('admin.dashboard')->with([
+            'organization' => $organization,
+            'totalMembers' => 0,
+            'totalPaid' => 0,
+            'totalUnpaid' => 0,
+            'recentTransactions' => collect(),
+            'labels' => collect(),
+            'paidData' => collect(),
+            'totalData' => collect(),
+        ]);
     }
 
-    $totalMembers = $currentSemester->students()
-        ->where('students.organization', $organization)
+    $semesterId = $currentSemester->id;
+    $isYearLevelOrg = in_array($organization, ['FCO', 'SCO', 'JCO', 'SENCO']);
+    $organizationInstance = Organization::where('code', $organization)->first();
+
+    if (!$organizationInstance) {
+        return view('admin.dashboard')->with([
+            'organization' => $organization,
+            'totalMembers' => 0,
+            'totalPaid' => 0,
+            'totalUnpaid' => 0,
+            'recentTransactions' => collect(),
+            'labels' => collect(),
+            'paidData' => collect(),
+            'totalData' => collect(),
+        ]);
+    }
+
+    $totalMembers = Student::whereHas('semesters', function ($q) use ($semesterId) {
+            $q->where('semesters.id', $semesterId);
+        })
+        ->whereHas('organizations', function ($q) use ($organizationInstance) {
+            $q->where('organizations.id', $organizationInstance->id);
+        })
         ->count();
 
-    $totalPaid = $currentSemester->students()
-        ->where('students.organization', $organization)
-        ->wherePivot('payment_status', 'Paid')
+    $totalPaid = Student::whereHas('semesters', function ($q) use ($semesterId) {
+            $q->where('semesters.id', $semesterId)
+              ->where('semester_student.payment_status', 'Paid');
+        })
+        ->whereHas('organizations', function ($q) use ($organizationInstance) {
+            $q->where('organizations.id', $organizationInstance->id);
+        })
         ->count();
 
-    $totalUnpaid = $currentSemester->students()
-        ->where('students.organization', $organization)
-        ->wherePivot('payment_status', 'Unpaid')
+    $totalUnpaid = Student::whereHas('semesters', function ($q) use ($semesterId) {
+            $q->where('semesters.id', $semesterId)
+              ->where('semester_student.payment_status', 'Unpaid');
+        })
+        ->whereHas('organizations', function ($q) use ($organizationInstance) {
+            $q->where('organizations.id', $organizationInstance->id);
+        })
         ->count();
 
-    $recentTransactions = $currentSemester->students()
-        ->where('students.organization', $organization)
-        ->select('students.id_number as student_id', 'students.first_name', 'students.last_name', 'students.section')
-        ->orderBy('semester_student.updated_at', 'desc')
+    $recentTransactions = Student::whereHas('semesters', function ($q) use ($semesterId) {
+            $q->where('semesters.id', $semesterId);
+        })
+        ->whereHas('organizations', function ($q) use ($organizationInstance) {
+            $q->where('organizations.id', $organizationInstance->id);
+        })
+        ->select('id_number as student_id', 'first_name', 'last_name', 'section', 'updated_at')
+        ->orderBy('updated_at', 'desc')
         ->limit(5)
         ->get();
 
-    $paymentStats = DB::table('semesters')
-        ->join('semester_student', 'semesters.id', '=', 'semester_student.semester_id')
-        ->join('students', 'students.id', '=', 'semester_student.student_id')
-        ->select(
-            'semesters.created_at',
-            DB::raw("CONCAT(semesters.semester, ' AY ', semesters.academic_year) AS sem_label"),
-            DB::raw('COUNT(*) as total_students'),
-            DB::raw('COUNT(CASE WHEN semester_student.payment_status = "Paid" THEN 1 END) as total_paid')
-        )
-        ->whereIn('semesters.admin_id', $organizationAdminIds)
-        ->where('students.organization', $organization)
-        ->groupBy('sem_label', 'semesters.created_at')
-        ->orderBy('semesters.created_at', 'asc')
-        ->get();
+    // 🛠️ FIXED: Use leftJoin and logic that includes semesters even if no paid students exist
+   $paymentStats = DB::table('semesters')
+    ->leftJoin('semester_student', 'semesters.id', '=', 'semester_student.semester_id')
+    ->leftJoin('students', 'students.id', '=', 'semester_student.student_id')
+    ->select(
+        'semesters.created_at',
+        DB::raw("CONCAT(semesters.semester, ' AY ', semesters.academic_year) AS sem_label"),
+        DB::raw('COUNT(semester_student.student_id) as total_students'),
+        DB::raw('COALESCE(SUM(CASE WHEN semester_student.payment_status = "Paid" THEN 1 ELSE 0 END), 0) as total_paid')
+    )
+    ->whereIn('semesters.admin_id', $organizationAdminIds)
+    ->when($isYearLevelOrg, function ($query) use ($admin) {
+        return $query->where('semester_student.admin_id', $admin->id);
+    }, function ($query) use ($organizationInstance) {
+        return $query->where('students.organization', $organizationInstance->code);
+    })
+    ->groupBy('sem_label', 'semesters.created_at')
+    ->orderBy('semesters.created_at', 'asc')
+    ->get();
 
+    // 🗂️ Keep last 4 semesters
     $latestStats = $paymentStats->sortByDesc('created_at')->take(4)->sortBy('created_at')->values();
 
     $labels = $latestStats->pluck('sem_label');
     $paidData = $latestStats->pluck('total_paid');
     $totalData = $latestStats->pluck('total_students');
+//     dd([
+//     'labels' => $labels,
+//     'paidData' => $paidData,
+//     'totalData' => $totalData,
+//     'unpaidCalc' => $totalData->map(fn($total, $i) => $total - $paidData[$i]),
+// ]);
+
 
     return view('admin.dashboard', compact(
         'organization',
@@ -100,6 +145,7 @@ class AdminController extends Controller
         'totalData'
     ));
 }
+
 
     
 
@@ -266,7 +312,7 @@ public function updateAdminSuperadmin(Request $request, $id)
     // Validate the request
     $request->validate([
         'name' => 'required|string|max:255',
-        'password' => 'required|string|min:8',
+        'password' => 'required|string|min:5',
     ]);
 
     // Find the admin by ID
@@ -289,34 +335,39 @@ public function updateAdminSuperadmin(Request $request, $id)
 {
     $request->validate([
         'name' => 'required|string|max:255',
-        'password' => 'required|string|min:8',
+        'password' => 'required|string|min:5',
         'organization' => 'required|string'
     ]);
 
     // Mark current treasurer as past
-    $currentAdmin = Admin::where('username', $request->organization)
-        ->where('status', 'current')
-        ->first();
+   try {
+        DB::transaction(function () use ($request) {
+            $currentAdmin = Admin::whereRaw('UPPER(username) = ?', [strtoupper($request->organization)])
+                ->where('status', 'current')
+                ->first();
 
-    if ($currentAdmin) {
-        $currentAdmin->status = 'past';
-        $currentAdmin->save();
+            if ($currentAdmin) {
+                $currentAdmin->status = 'past';
+                $currentAdmin->save();
+            }
+
+            $orgSlug = strtoupper(str_replace(' ', '_', $request->organization));
+            $imagePath = 'images/OrganizationLogo/' . $orgSlug . '.png';
+
+            $newAdmin = new Admin();
+            $newAdmin->name = $request->name;
+            $newAdmin->username = strtoupper($request->organization);
+            $newAdmin->password = bcrypt($request->password);
+            $newAdmin->plain_password = $request->password;
+            $newAdmin->status = 'current';
+            $newAdmin->role = 'admin';
+            $newAdmin->image = $imagePath;
+            $newAdmin->save();
+        });
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors(['error' => $e->getMessage()]);
     }
 
-    // Set image path based on organization name
-    $orgSlug = strtoupper(str_replace(' ', '_', $request->organization)); // e.g., DIGITS
-    $imagePath = 'images/OrganizationLogo/' . $orgSlug . '.png';
-
-    // Create new treasurer
-    $newAdmin = new Admin();
-    $newAdmin->name = $request->name;
-    $newAdmin->username = $request->organization;
-    $newAdmin->password = bcrypt($request->password);
-    $newAdmin->plain_password = $request->password;
-    $newAdmin->status = 'current';
-    $newAdmin->role = 'admin';
-    $newAdmin->image = $imagePath;
-    $newAdmin->save();
 
     return redirect()->back()->with('success', 'New treasurer assigned.');
 }
@@ -432,7 +483,7 @@ public function semStore(Request $request)
     public function semesterRecord(Request $request)
     {
         $admin = Auth::guard('admin')->user();
-$organization = $admin->username;
+        $organization = $admin->username;
 
         $section = $request->input('section');
        
@@ -441,27 +492,30 @@ $organization = $admin->username;
 
         // Try to get from request first, then session
    
-$organizationAdminIds = Admin::where('username', $organization)->pluck('id');
+        $organizationAdminIds = Admin::where('username', $organization)->pluck('id');
 
-$semesterId = $request->input('semester_id') ?? session('current_semester_id');
+        $semesterId = $request->input('semester_id') ?? session('current_semester_id');
 
 
-    // If found in request, update the session (keep it fresh)
-    if ($request->has('semester_id')) {
-    session(['current_semester_id' => $semesterId]);
-}
+        // If found in request, update the session (keep it fresh)
+        if ($request->has('semester_id')) {
+        session(['current_semester_id' => $semesterId]);
+        }
 
-$currentSemester = Semester::where('id', $semesterId)
-    ->whereIn('admin_id', $organizationAdminIds)
-    ->first();
+        $currentSemester = Semester::where('id', $semesterId)
+            ->whereIn('admin_id', $organizationAdminIds)
+            ->first();
 
-if (!$currentSemester) {
-    return redirect()->route('admin.addpayment')->withErrors(['error' => 'No semester selected or found.']);
-}
+        if (!$currentSemester) {
+            return redirect()->route('admin.addpayment')->withErrors(['error' => 'No semester selected or found.']);
+        }
 
-$studentsQuery = $currentSemester->students()
-    ->withPivot('payment_status', 'admin_id', 'admin_name')
-    ->where('students.organization', $organization);
+        $studentsQuery = $currentSemester->students()
+        ->withPivot('payment_status', 'admin_id', 'admin_name')
+        ->whereHas('organizations', function ($query) use ($organization) {
+            $query->where('code', $organization);
+        });
+
 
 
         // Apply section filter if selected
@@ -477,14 +531,12 @@ $studentsQuery = $currentSemester->students()
 
         $students = $studentsQuery->get();
 
-        // Get all semesters for the admin
-$semesters = Semester::whereIn('admin_id', $organizationAdminIds)->get();
+            // Get all semesters for the admin
+        $semesters = Semester::whereIn('admin_id', $organizationAdminIds)->get();
         // Group sections by year for dropdown filtering
-        $availableSections = Student::where('organization', $organization)
-            ->pluck('section')
-            ->unique()
-            ->sort()
-            ->values();
+        $availableSections = Student::whereHas('organizations', function ($query) use ($organization) {
+    $query->where('code', $organization);
+})->pluck('section')->unique()->sort()->values();
 
         $groupedSections = [];
         foreach ($availableSections as $sec) {
@@ -558,38 +610,41 @@ $semesters = Semester::whereIn('admin_id', $organizationAdminIds)->get();
     {
         $admin = Auth::guard('admin')->user();
         $organization = $admin->username;
-        $semesterId = $request->input('semester_id');
+
+        $section = $request->input('section');
+       
         $filter = $request->input('filter'); // <-- using filter instead of section
     
+
+        // Try to get from request first, then session
+   
         $organizationAdminIds = Admin::where('username', $organization)->pluck('id');
 
-$semesterId = $request->input('semester_id') ?? session('current_semester_id');
+        $semesterId = $request->input('semester_id') ?? session('current_semester_id');
 
         // Fetch current semester
-        if ($request->has('semester_id')) {
-    session(['current_semester_id' => $semesterId]);
-}
+         if ($request->has('semester_id')) {
+        session(['current_semester_id' => $semesterId]);
+        }
 
-$currentSemester = Semester::where('id', $semesterId)
-    ->whereIn('admin_id', $organizationAdminIds)
-    ->first();
+        $currentSemester = Semester::where('id', $semesterId)
+            ->whereIn('admin_id', $organizationAdminIds)
+            ->first();
 
-if (!$currentSemester) {
-    return redirect()->route('admin.addpayment')->withErrors(['error' => 'No semester selected or found.']);
-}
-    
+        if (!$currentSemester) {
+            return redirect()->route('admin.paymenthistorylist')->withErrors(['error' => 'No semester selected or found.']);
+        }
+
         // Start base query
-        $studentsQuery = Student::where('students.organization', $organization)
-            ->join('semester_student', function ($join) use ($semesterId) {
-                $join->on('students.id', '=', 'semester_student.student_id')
-                     ->where('semester_student.semester_id', '=', $semesterId);
-            })
-            ->select('students.*', 'semester_student.payment_status');
+        $studentsQuery = $currentSemester->students()
+        ->withPivot('payment_status', 'admin_id', 'admin_name')
+        ->whereHas('organizations', function ($query) use ($organization) {
+            $query->where('code', $organization);
+        });
+     
+      
     
-        $section = null;
-        $year = null;
-    
-        if ($filter) {
+       if ($filter) {
             if (Str::startsWith($filter, 'section_')) {
                 $section = substr($filter, 8);
                 $studentsQuery->where('students.section', $section);
@@ -598,24 +653,30 @@ if (!$currentSemester) {
                 $studentsQuery->whereRaw('SUBSTRING(students.section, 3, 1) = ?', [$year]);
             }
         }
-    
+
         $students = $studentsQuery->get();
-    
+
         // Group sections
-        $availableSections = Student::where('organization', $organization)
-            ->pluck('section')->unique()->sort()->values();
-    
+       $semesters = Semester::whereIn('admin_id', $organizationAdminIds)->get();
+        // Group sections by year for dropdown filtering
+       $availableSections = Student::whereHas('organizations', function ($query) use ($organization) {
+            $query->where('code', $organization);
+        })->pluck('section')->unique()->sort()->values();
+
+
         $groupedSections = [];
         foreach ($availableSections as $sec) {
-            $yr = (int) substr($sec, 2, 1);
-            $groupedSections[$yr][] = $sec;
+            $year = (int) substr($sec, 2, 1);
+            $groupedSections[$year][] = $sec;
         }
-    
+
+        // Get yearSections for dropdown
         $yearSections = YearSection::where('admin_id', $admin->id)
-            ->orderBy('year')->orderBy('section')->get()->groupBy('year');
-    
-        $semesters = Semester::where('admin_id', $admin->id)->get();
-    
+            ->orderBy('year')
+            ->orderBy('section')
+            ->get()
+            ->groupBy('year');
+
         return view('admin.paymenthistorylist', compact(
             'organization',
             'semesters',
@@ -634,79 +695,86 @@ if (!$currentSemester) {
 
 
     public function downloadPaymentHistoryPDF(Request $request)
-    {
-        $admin = Auth::guard('admin')->user();
-        $organization = $admin->username;
-        $semesterId = $request->input('semester_id');
-        $filter = $request->input('filter');
-        $search = $request->input('search');
-        $orderColumn = $request->input('order_column');
-        $orderDir = $request->input('order_dir');
-    
-        $currentSemester = Semester::where('id', $semesterId)
-    ->whereHas('admin', function ($query) use ($organization) {
-        $query->where('username', $organization);
-    })
-    ->first();
+{
+    ini_set('memory_limit', '512M'); // Increase memory limit
 
-    
-        if (!$currentSemester) {
-            return back()->withErrors(['error' => 'Semester not found.']);
-        }
-    
-        // Base student query
-        $studentsQuery = Student::where('students.organization', $organization)
-            ->join('semester_student', function ($join) use ($semesterId) {
-                $join->on('students.id', '=', 'semester_student.student_id')
-                    ->where('semester_student.semester_id', '=', $semesterId);
-            })
-            ->select('students.*', 'semester_student.payment_status');
-    
-        // Apply filter logic
-        if ($filter) {
-            if (str_starts_with($filter, 'year_')) {
-                $year = str_replace('year_', '', $filter);
-                $studentsQuery->where('students.year_level', $year);
-            } elseif (str_starts_with($filter, 'section_')) {
-                $section = str_replace('section_', '', $filter);
-                $studentsQuery->where('students.section', $section);
-            }
-        }
-    
-        // Apply search
-        if ($search) {
-            $studentsQuery->where(function ($query) use ($search) {
-                $query->where('students.first_name', 'like', "%$search%")
-                    ->orWhere('students.last_name', 'like', "%$search%")
-                    ->orWhere('students.id_number', 'like', "%$search%")
-                    ->orWhere('students.section', 'like', "%$search%")
-                    ->orWhere('semester_student.payment_status', 'like', "%$search%");
-            });
-        }
-    
-        // Map DataTables index to column names
-        $sortableColumns = ['id_number', 'first_name', 'last_name', 'section', 'payment_status'];
-        if (is_numeric($orderColumn) && isset($sortableColumns[$orderColumn])) {
-            $studentsQuery->orderBy($sortableColumns[$orderColumn], $orderDir === 'desc' ? 'desc' : 'asc');
-        }
-    
-        $students = $studentsQuery->get();
-    
-        $pdf = Pdf::loadView('admin.paymenthistorypdf', [
-            'organization' => $organization,
-            'currentSemester' => $currentSemester,
-            'students' => $students,
-            'section' => $filter,
-        ]);
-    
-        $filename = 'payment_history_' . $currentSemester->semester;
-        if ($filter) {
-            $filename .= '_filtered';
-        }
-        $filename .= '.pdf';
-    
-        return $pdf->download($filename);
+    $admin = Auth::guard('admin')->user();
+    $organization = $admin->username;
+    $semesterId = $request->input('semester_id');
+    $filter = $request->input('filter');
+    $search = $request->input('search');
+    $orderColumn = $request->input('order_column');
+    $orderDir = $request->input('order_dir');
+
+    $organizationAdminIds = Admin::where('username', $organization)->pluck('id');
+
+    $currentSemester = Semester::where('id', $semesterId)
+        ->whereIn('admin_id', $organizationAdminIds)
+        ->first();
+
+    if (!$currentSemester) {
+        return back()->withErrors(['error' => 'Semester not found.']);
     }
+
+    // Base query using pivot relationship
+    $studentsQuery = $currentSemester->students()
+        ->withPivot('payment_status', 'admin_id', 'admin_name')
+        ->whereHas('organizations', function ($query) use ($organization) {
+            $query->where('code', $organization);
+        });
+
+    // Apply filter logic
+    if ($filter) {
+        if (Str::startsWith($filter, 'year_')) {
+            $year = substr($filter, 5);
+            $studentsQuery->whereRaw('SUBSTRING(students.section, 3, 1) = ?', [$year]);
+        } elseif (Str::startsWith($filter, 'section_')) {
+            $section = substr($filter, 8);
+            $studentsQuery->where('students.section', $section);
+        }
+    }
+
+    // Apply search
+    if ($search) {
+        $studentsQuery->where(function ($query) use ($search) {
+            $query->where('students.first_name', 'like', "%$search%")
+                ->orWhere('students.last_name', 'like', "%$search%")
+                ->orWhere('students.id_number', 'like', "%$search%")
+                ->orWhere('students.section', 'like', "%$search%")
+                ->orWherePivot('payment_status', 'like', "%$search%");
+        });
+    }
+
+    // Handle sorting (map DataTables index to column)
+    $sortableColumns = ['id_number', 'first_name', 'last_name', 'section', 'payment_status'];
+    if (is_numeric($orderColumn) && isset($sortableColumns[$orderColumn])) {
+        $column = $sortableColumns[$orderColumn];
+
+        if ($column === 'payment_status') {
+            $studentsQuery->orderByPivot('payment_status', $orderDir === 'desc' ? 'desc' : 'asc');
+        } else {
+            $studentsQuery->orderBy("students.$column", $orderDir === 'desc' ? 'desc' : 'asc');
+        }
+    }
+
+    $students = $studentsQuery->get();
+
+    $pdf = Pdf::loadView('admin.paymenthistorypdf', [
+        'organization' => $organization,
+        'currentSemester' => $currentSemester,
+        'students' => $students,
+        'section' => $filter,
+    ]);
+
+    $filename = 'payment_history_' . $currentSemester->semester;
+    if ($filter) {
+        $filename .= '_filtered';
+    }
+    $filename .= '.pdf';
+
+    return $pdf->download($filename);
+}
+
     
 
 

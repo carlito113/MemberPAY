@@ -10,26 +10,27 @@ use App\Models\Organization;
 use App\Models\Semester;
 
 class StudentController extends Controller
+
+
 {
+
+    
     // Store a new student
     public function store(Request $request)
-    {
-        // dd($request->all());
-        $request->validate([
-           'id_number' => ['required', 'unique:students,id_number', 'regex:/^\d{7}$/'],
-            'first_name' => ['required', 'regex:/^[A-Za-z\s\-]+$/'],
-            'last_name' => ['required', 'regex:/^[A-Za-z\s\-]+$/'],
-            'contact_number' => ['required', 'regex:/^09\d{9}$/'],
-            'year_level' => 'required|integer|between:1,4',
-            'section' => 'required|string',
-            'organization' => 'required|string',
-        ]);
+{
+    // Validate input
+    $request->validate([
+        'id_number' => ['required', 'unique:students,id_number', 'regex:/^\d{7}$/'],
+        'first_name' => ['required', 'regex:/^[A-Za-z\s\-]+$/'],
+        'last_name' => ['required', 'regex:/^[A-Za-z\s\-]+$/'],
+        'contact_number' => ['required', 'regex:/^09\d{9}$/'],
+        'year_level' => 'required|integer|between:1,4',
+        'section' => 'required|string',
+        'organization' => 'required|string',
+    ]);
 
     // Create the student
     $student = Student::create($request->all());
-
-    // Now, get the organization and link it to the correct year-level organization
-    $courseOrg = $request->organization;
 
     // Define the year-level organizations
     $yearOrgs = [
@@ -39,25 +40,44 @@ class StudentController extends Controller
         4 => 'SENCO', // 4th year -> SENCO
     ];
 
-    // Find the corresponding year-level organization based on year level
-    $yearLevelOrg = $yearOrgs[$request->year_level] ?? null;
-
-    if ($yearLevelOrg) {
-        // Attach the student to the corresponding year-level organization
-        $yearOrganization = Organization::where('code', $yearLevelOrg)->first();
+    // Attach to year-level org if it exists
+    $yearLevelOrgCode = $yearOrgs[$request->year_level] ?? null;
+    if ($yearLevelOrgCode) {
+        $yearOrganization = Organization::where('code', $yearLevelOrgCode)->first();
         if ($yearOrganization) {
             $student->organizations()->attach($yearOrganization->id);
         }
     }
 
-    // Attach student to the course organization (if it doesn't exist yet)
-    $courseOrganization = Organization::where('code', $courseOrg)->first();
+    // Attach to course organization and find semester
+    $courseOrgCode = $request->organization;
+    $courseOrganization = Organization::where('code', $courseOrgCode)->first();
+
     if ($courseOrganization) {
+        // Attach to course org
         $student->organizations()->attach($courseOrganization->id);
+
+        // Ensure the organization has an admin
+        $admin = $courseOrganization->admin; // assumes organization belongsTo admin
+
+        if ($admin) {
+            // Find the latest or active semester for the admin
+            $semester = Semester::where('admin_id', $admin->id)->latest()->first();
+
+            if ($semester) {
+                // Attach student to semester_student table
+                DB::table('semester_student')->insert([
+                    'semester_id' => $semester->id,
+                    'student_id' => $student->id,
+                    'admin_id' => $admin->id,
+                    'payment_status' => 'unpaid', // Default status
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
     }
 
-
-    
     return back()->with('success', 'Student added successfully.');
 }
 

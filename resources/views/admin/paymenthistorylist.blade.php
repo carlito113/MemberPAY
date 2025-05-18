@@ -140,7 +140,7 @@
                             <td>{{ $student->first_name }}</td>
                            
                             <td>{{ $student->section }}</td>
-                            <td>{{ $student->payment_status }}</td>
+                            <td>{{ $student->pivot->payment_status }}</td>
                         </tr>
                     @empty
                         <tr>

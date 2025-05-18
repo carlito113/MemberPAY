@@ -47,8 +47,9 @@ th {
         <thead>
             <tr>
                 <th>ID Number</th>
-                <th>First Name</th>
+           
                 <th>Last Name</th>
+                <th>First Name</th>
                 <th>Section</th>
                 <th>Payment Status</th>
             </tr>
@@ -57,10 +58,12 @@ th {
             @foreach ($students as $student)
                 <tr>
                     <td>{{ $student->id_number }}</td>
-                    <td>{{ $student->first_name }}</td>
+                  
                     <td>{{ $student->last_name }}</td>
+                    <td>{{ $student->first_name }}</td>
                     <td>{{ $student->section }}</td>
-                    <td>{{ $student->payment_status }}</td>
+                   <td>{{ $student->pivot->payment_status }}</td> <!-- ✅ Correct way -->
+
                 </tr>
             @endforeach
         </tbody>

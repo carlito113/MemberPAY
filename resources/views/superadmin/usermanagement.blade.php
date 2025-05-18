@@ -11,6 +11,21 @@
     <link rel="stylesheet" href="{{ asset('css/sidenav.css') }}">
 </head>
 <body>
+    <!-- @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif -->
     <div class="d-flex">
         @include('superadmin.navsuperadmin')
         <!-- Main content -->
@@ -41,6 +56,7 @@
                             @foreach ($organizations as $name)
                                 @php
                                     $admin = $admins->firstWhere('username', $name);
+                                    //echo "Looking for: $name, Found: " . ($admin->username ?? 'NONE') . "<br>";
                                 @endphp
                                 <tr>
                                     <th scope="row">{{ $name }}</th>
@@ -69,10 +85,10 @@
 
                                     </td>
                                 </tr>
-                                <td>
-    {{ $admin->name ?? 'NO ADMIN FOUND' }} <br>
-    <small>Status: {{ $admin->status ?? 'N/A' }}</small>
-</td>
+                                                        <!-- <td>
+                            {{ $admin->name ?? 'NO ADMIN FOUND' }} <br>
+                            <small>Status: {{ $admin->status ?? 'N/A' }}</small>
+                        </td> -->
 
                             @endforeach
                         </tbody>
