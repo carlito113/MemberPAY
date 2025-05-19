@@ -10,11 +10,7 @@ use App\Models\Organization;
 use App\Models\Semester;
 
 class StudentController extends Controller
-
-
-{
-
-    
+{    
     // Store a new student
     public function store(Request $request)
 {

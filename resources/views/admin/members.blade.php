@@ -86,7 +86,7 @@
                     <!-- DataTable Search bar is automatically included -->
                 </div>
                 <!-- Students Table -->
-                <table id="studentsTable" class="table table-striped table-bordered table-hover align-middle">
+                <table id="studentsTable" class="table table-responsive table-striped table-bordered table-hover align-middle">
                     <thead>
                         <tr>
                             <th>Student Id</th>

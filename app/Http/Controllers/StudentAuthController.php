@@ -101,7 +101,7 @@ class StudentAuthController extends Controller
     }
 
     public function showPayments()
-{
+    {
     $student = Auth::user(); // or fetch by param
     
     $semesters = $student->semesters()
@@ -110,7 +110,7 @@ class StudentAuthController extends Controller
         ->get();
 
     return view('student.payment', compact('student', 'semesters'));
-}
+    }
 
 
 }

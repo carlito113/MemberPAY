@@ -60,9 +60,8 @@
                     </div>
                 </div>
             </div>
-
-            <div class="card">
-                <h4 class="card-title p-2 mb-3">Recent Payment Transactions</h4>
+            <div class="card p-3">
+                <h4 class="card-title p-1 mb-2  ">Recent Payment Transactions</h4>
                 <table class="table">
                     <thead>
                         <tr>
