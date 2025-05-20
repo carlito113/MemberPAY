@@ -271,10 +271,13 @@ class AdminController extends Controller
 
             if ($latestSemester) {
                 $studentsCount = \DB::table('semester_student')
-                    ->join('students', 'semester_student.student_id', '=', 'students.id')
-                    ->where('semester_student.semester_id', $latestSemester->id)
-                    ->whereRaw('LOWER(students.organization) = LOWER(?)', [$admin->username])
-                    ->count();
+                ->join('students', 'semester_student.student_id', '=', 'students.id')
+                ->join('organization_student', 'students.id', '=', 'organization_student.student_id')
+                ->join('organizations', 'organization_student.organization_id', '=', 'organizations.id')
+                ->where('semester_student.semester_id', $latestSemester->id)
+                ->whereRaw('LOWER(organizations.code) = LOWER(?)', [$admin->username])
+                ->count();
+
             }
 
             $admin->students_count = $studentsCount;

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('students', function (Blueprint $table) {
-            $table->string('section')->after('year_level'); // or wherever you want to place it
+            $table->string('section')->after('year_level'); 
         });
     }
 
