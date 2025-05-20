@@ -185,12 +185,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     label: 'Paid',
                     data: {!! json_encode($paidData) !!},
                     backgroundColor: '#0d6efd',
+                    borderRadius: 6,
                     stack: 'members'
                 },
                 {
                     label: 'Unpaid',
                     data: {!! json_encode($totalData->map(fn($total, $i) => $total - $paidData[$i])) !!},
                     backgroundColor: '#b0c4de',
+                    borderRadius: 6,
                     stack: 'members'
                 }
             ]

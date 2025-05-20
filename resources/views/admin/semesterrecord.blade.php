@@ -123,10 +123,15 @@
                                     @csrf
                                     <input type="hidden" name="student_id" value="{{ $student->id }}">
                                     <input type="hidden" name="semester_id" value="{{ $currentSemester->id }}">
-                                    <select name="payment_status" class="form-select" style="max-width: 150px;" onchange="this.form.submit()">
-                                        <option value="Paid" {{ $student->pivot->payment_status == 'Paid' ? 'selected' : '' }}>Paid</option>
-                                        <option value="Unpaid" {{ $student->pivot->payment_status == 'Unpaid' ? 'selected' : '' }}>Unpaid</option>
-                                    </select>
+                                    <input type="hidden" name="payment_status" value="{{ $student->pivot->payment_status == 'Paid' ? 'Unpaid' : 'Paid' }}">
+
+                                    <button type="submit"
+                                        class="btn d-flex align-items-center gap-2 px-3 py-1 rounded-pill fw-semibold shadow-sm transition-all
+                                            {{ $student->pivot->payment_status == 'Paid' ? 'btn-success' : 'btn-danger' }}"
+                                        style="transition: 0.3s ease; font-size: 0.875rem;">
+                                        <i class="bi {{ $student->pivot->payment_status == 'Paid' ? 'bi-check-circle-fill' : 'bi-x-circle-fill' }}"></i>
+                                        {{ $student->pivot->payment_status }}
+                                    </button>
                                 </form>
                             </td>
                         </tr>

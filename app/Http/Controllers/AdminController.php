@@ -90,15 +90,17 @@ class AdminController extends Controller
             ->count();
 
         $recentTransactions = Student::whereHas('semesters', function ($q) use ($semesterId) {
-                $q->where('semesters.id', $semesterId);
-            })
-            ->whereHas('organizations', function ($q) use ($organizationInstance) {
-                $q->where('organizations.id', $organizationInstance->id);
-            })
-            ->select('id_number as student_id', 'first_name', 'last_name', 'section', 'updated_at')
-            ->orderBy('updated_at', 'desc')
-            ->limit(5)
-            ->get();
+        $q->where('semesters.id', $semesterId)
+          ->where('semester_student.payment_status', 'Paid');
+    })
+    ->whereHas('organizations', function ($q) use ($organizationInstance) {
+        $q->where('organizations.id', $organizationInstance->id);
+    })
+    ->select('id_number as student_id', 'first_name', 'last_name', 'section', 'updated_at')
+    ->orderBy('updated_at', 'desc')
+    ->limit(5)
+    ->get();
+
 
         // 🛠️ FIXED: Use leftJoin and logic that includes semesters even if no paid students exist
         $paymentStats = DB::table('semesters')

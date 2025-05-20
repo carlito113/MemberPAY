@@ -140,7 +140,12 @@
                             <td>{{ $student->first_name }}</td>
                            
                             <td>{{ $student->section }}</td>
-                            <td>{{ $student->pivot->payment_status }}</td>
+                           <td>
+                                <span class="badge rounded-pill fs-6
+                                    {{ $student->pivot->payment_status == 'Paid' ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $student->pivot->payment_status }}
+                                </span>
+                            </td>
                         </tr>
                     @empty
                         <tr>
