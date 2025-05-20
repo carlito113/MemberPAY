@@ -118,10 +118,10 @@ class StudentController extends Controller
             return back()->with('error', 'Organization not found.');
         }
 
-        // Detach only course organization (not year-level ones like FCO/SCO/etc.)
+        
         $courseOrgs = ['APSS', 'AVED', 'BACOMMUNITY', 'BPED MOVERS', 'COFED', 'DIGITS',
             'EC', 'EA', 'HRC', 'JSWAP', 'KMF', 'LNU MSS', 'INTERSOC',
-            'TC', 'TLEG', 'SQU', 'ECEO']; // <- adjust this list based on your actual course org codes
+            'TC', 'TLEG', 'SQU', 'ECEO']; 
         $orgIdsToDetach = $student->organizations()
             ->whereIn('code', $courseOrgs)
             ->pluck('organizations.id');

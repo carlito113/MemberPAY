@@ -86,17 +86,17 @@
 
                                 <div class="mb-3">
                                 @if ($errors->has('duplicate'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ $errors->first('duplicate') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
-@if ($errors->has('sameyear'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ $errors->first('sameyear') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        {{ $errors->first('duplicate') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                @endif
+                                @if ($errors->has('sameyear'))
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        {{ $errors->first('sameyear') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                @endif
                                 <div id="yearErrorAlert" class="alert alert-danger d-none" role="alert">
                                     Start year cannot be later than end year.
                                 </div>
@@ -109,8 +109,8 @@
                                 <div class="mb-3">
                                     <label for="academic-year-from" class="form-label">Academic Year</label>
                                     <div class="d-flex gap-2">
-                                        <input type="number" class="form-control" id="academic-year-from" name="academic_year_from" placeholder="From" min="2000" max="2100">
-                                        <input type="number" class="form-control" id="academic-year-to" name="academic_year_to" placeholder="To" min="2000" max="2100">
+                                        <input maxlength="4" oninput="this.value = this.value.replace(\[0-9]/g,")" type="number" class="form-control" id="academic-year-from" name="academic_year_from" placeholder="From" min="2000" max="2100">
+                                        <input type="number"  oninput="this.value = this.value.replace(\[0-9]/g,")" class="form-control" id="academic-year-to" name="academic_year_to" placeholder="To" min="2000" max="2100">
                                     </div>
                                 </div>
                             </div>

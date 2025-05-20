@@ -38,7 +38,7 @@ class Admin extends Authenticatable // Extend the Authenticatable class
         return $this->password;
     }
 
-    // You can also add other required methods if needed.
+    
     public function semesters()
     {
         return $this->hasMany(Semester::class);

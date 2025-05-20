@@ -419,14 +419,13 @@ class AdminController extends Controller
                 ->withInput();
         }
 
-        // 🆕 Create semester with the current treasurer’s ID
         $semester = Semester::create([
             'admin_id' => $currentTreasurer->id,
             'semester' => $request->semester,
             'academic_year' => $academicYear,
         ]);
 
-        // 🧠 Match organization by username
+        //  Match organization by username
         $organization = Organization::where('name', $loggedInAdmin->username)->first();
 
         if (!$organization) {
@@ -439,7 +438,7 @@ class AdminController extends Controller
             return redirect()->back()->withErrors(['no_students' => 'No students found for this organization.']);
         }
 
-        // 🧾 Attach students with current treasurer as the responsible admin
+        // Attach students with current treasurer as the responsible admin
         foreach ($students as $student) {
             $semester->students()->attach($student->id, [
                 'payment_status' => 'Unpaid',

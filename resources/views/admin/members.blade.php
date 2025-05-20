@@ -243,17 +243,20 @@
                                                 <h5 class="modal-title">Transfer Student</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
-                                            <div class="modal-body">
-                                                <label class="form-label fw-semibold">Select Organization</label>
-                                                <select name="organization" class="form-select" required>
-                                                    <option value="">-- Choose Organization --</option>
-                                                    @foreach($allOrganizations as $org)
+                                         <div class="modal-body">
+                                            <label class="form-label fw-semibold">Select Organization</label>
+                                            <select name="organization" class="form-select" required>
+                                                <option value="">-- Choose Organization --</option>
+                                                @foreach($allOrganizations as $org)
+                                                    @if(!in_array($org, ['FCO', 'JCO', 'SCO', 'SENCO']))
                                                         <option value="{{ $org }}" {{ $student->organization == $org ? 'selected' : '' }}>
                                                             {{ $org }}
                                                         </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                        </div>
+
                                             <div class="modal-footer">
                                                 <button type="submit" class="btn btn-warning">Transfer</button>
                                             </div>

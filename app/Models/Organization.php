@@ -13,6 +13,4 @@ class Organization extends Model
         return $this->belongsToMany(Student::class, 'organization_student');
     }
 
-
-
 }
