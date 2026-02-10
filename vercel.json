@@ -1,0 +1,23 @@
+{
+    "version": 2,
+    "framework": null,
+    "functions": {
+        "index.php": { "runtime": "vercel-php@0.6.0" }
+    },
+    "routes": [
+        {
+            "src": "/build/(.*)",
+            "dest": "/public/build/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "index.php"
+        }
+    ],
+    "env": {
+        "APP_ENV": "production",
+        "APP_DEBUG": "true",
+        "APP_URL": "https://member-pay.vercel.app",
+        "APP_KEY": "base64:PQw81ZNpHmGw95hfrQea+NwFOIF+Oecs0+4IqYbLLc4="
+    }
+}
